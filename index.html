@@ -4,1003 +4,1112 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Instagram Content Studio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            bg: '#0a0a0a',
-            surface: '#1a1a1a',
-            border: '#2a2a2a',
-            purple: { DEFAULT: '#8B5CF6', light: '#A78BFA', dark: '#7C3AED' }
-          },
-          fontFamily: { sans: ['Inter', 'sans-serif'] }
-        }
-      }
-    }
-  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    * { box-sizing: border-box; }
-    body { background: #0a0a0a; color: #e5e5e5; font-family: 'Inter', sans-serif; }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #1a1a1a; }
-    ::-webkit-scrollbar-thumb { background: #8B5CF6; border-radius: 3px; }
-    textarea, input, select {
-      background: #111 !important;
-      color: #e5e5e5 !important;
-      border: 1px solid #2a2a2a !important;
-      outline: none !important;
-      transition: border-color 0.2s;
+    :root {
+      --cream: #F5EFE4;
+      --beige: #E8DCC8;
+      --tan:   #C9A87C;
+      --brown: #7C5C3E;
+      --dark:  #2C1F14;
+      --char:  #1A1209;
+      --orange:#C4622D;
+      --muted: #9C8370;
+      --purple:#8B5CF6;
+      --purple-l:#A78BFA;
+      --bg:    #0a0a0a;
+      --surf:  #161616;
+      --bord:  #232323;
     }
-    textarea:focus, input:focus, select:focus { border-color: #8B5CF6 !important; }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { background: var(--bg); color: #e5e5e5; font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 3px; }
+
+    textarea, input[type=text], input[type=url], input[type=password], select {
+      background: #111 !important; color: #e5e5e5 !important;
+      border: 1px solid var(--bord) !important; outline: none !important;
+      transition: border-color .15s, box-shadow .15s; width: 100%;
+      font-family: 'Inter', sans-serif;
+    }
+    textarea:focus, input:focus, select:focus {
+      border-color: var(--purple) !important;
+      box-shadow: 0 0 0 3px rgba(139,92,246,.1) !important;
+    }
     select option { background: #111; color: #e5e5e5; }
-    .tab-btn { transition: all 0.2s; border-bottom: 2px solid transparent; }
-    .tab-btn.active { border-bottom-color: #8B5CF6; color: #8B5CF6; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .spinner {
-      border: 3px solid #2a2a2a;
-      border-top: 3px solid #8B5CF6;
-      border-radius: 50%;
-      width: 32px; height: 32px;
-      animation: spin 0.8s linear infinite;
+
+    .tab-btn {
+      border: none; border-bottom: 2px solid transparent; background: none;
+      padding: 12px 20px; font-size: 13px; font-weight: 500; color: #6b7280;
+      white-space: nowrap; cursor: pointer; transition: all .2s; font-family: 'Inter', sans-serif;
     }
+    .tab-btn:hover { color: #d1d5db; }
+    .tab-btn.active { border-bottom-color: var(--purple); color: var(--purple); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .card { background: var(--surf); border: 1px solid var(--bord); border-radius: 14px; }
+
+    .btn-p { background: var(--purple); color: #fff; border: none; cursor: pointer; border-radius: 10px; font-weight: 600; font-family: 'Inter', sans-serif; transition: background .15s, transform .1s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-p:hover { background: var(--purple-l); }
+    .btn-p:active { transform: scale(.98); }
+    .btn-p:disabled { background: #3d2f6e; color: #7c6aaa; cursor: not-allowed; }
+
+    .btn-g { background: #1e1e1e; color: #9ca3af; border: 1px solid var(--bord); cursor: pointer; border-radius: 8px; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; font-family: 'Inter', sans-serif; transition: all .15s; }
+    .btn-g:hover { background: #2a2a2a; color: #e5e5e5; border-color: #3a3a3a; }
+
+    .btn-approve { background: rgba(34,197,94,.1); color: #4ade80; border: 1px solid rgba(34,197,94,.25); }
+    .btn-approve:hover { background: rgba(34,197,94,.2); }
+    .btn-reject  { background: rgba(239,68,68,.08); color: #f87171; border: 1px solid rgba(239,68,68,.2); }
+    .btn-reject:hover { background: rgba(239,68,68,.18); }
+    .btn-dl      { background: rgba(59,130,246,.08); color: #60a5fa; border: 1px solid rgba(59,130,246,.2); }
+    .btn-dl:hover{ background: rgba(59,130,246,.18); }
+    .btn-leg     { background: rgba(139,92,246,.1); color: var(--purple-l); border: 1px solid rgba(139,92,246,.25); }
+    .btn-leg:hover{ background: rgba(139,92,246,.2); }
+
+    label { color: #9ca3af; font-size: 13px; font-weight: 500; display: block; margin-bottom: 5px; }
+    .stag { color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; }
+
+    .spinner { border: 2.5px solid #2a2a2a; border-top-color: var(--purple); border-radius: 50%; width: 28px; height: 28px; animation: spin .75s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .slide-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; }
-    .slide-card:hover { border-color: #8B5CF6; }
-    .copy-btn { background: #2a2a2a; color: #a0a0a0; font-size: 12px; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: none; }
-    .copy-btn:hover { background: #8B5CF6; color: white; }
-    .color-swatch { width: 40px; height: 40px; border-radius: 8px; border: 2px solid #2a2a2a; display: inline-block; }
-    .api-key-input { font-family: monospace; letter-spacing: 1px; }
-    .btn-primary { background: #8B5CF6; color: white; border: none; cursor: pointer; transition: background 0.2s; }
-    .btn-primary:hover { background: #A78BFA; }
-    .btn-primary:active { background: #7C3AED; }
-    .btn-primary:disabled { background: #4a3a7a; cursor: not-allowed; opacity: 0.6; }
-    .result-area { display: none; }
-    .result-area.visible { display: block; }
-    .hashtag-pill { background: #1e1b4b; color: #A78BFA; border: 1px solid #4338ca; padding: 3px 10px; border-radius: 20px; font-size: 13px; display: inline-block; margin: 3px; }
-    .cta-option { background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 8px; padding: 12px; margin: 6px 0; position: relative; }
-    .cta-option:hover { border-color: #8B5CF6; }
-    label { color: #9ca3af; font-size: 13px; font-weight: 500; display: block; margin-bottom: 4px; }
-    .section-label { color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 8px; }
-    .pulse-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-    .error-banner { background: #2d0a0a; border: 1px solid #dc2626; border-radius: 8px; color: #fca5a5; padding: 12px 16px; }
-    .success-flash { animation: flash 0.5s ease-out; }
-    @keyframes flash { 0%{background:#4ade8040} 100%{background:transparent} }
-    input[type="file"] { padding: 8px; font-size: 13px; }
-    input[type="file"]::-webkit-file-upload-button {
-      background: #2a2a2a; color: #e5e5e5; border: none; padding: 4px 12px;
-      border-radius: 4px; cursor: pointer; font-size: 12px;
+
+    .prompt-chip {
+      background: #1a1a2e; border: 1px solid #312e6e; color: var(--purple-l);
+      border-radius: 20px; padding: 5px 12px; font-size: 12px; cursor: pointer;
+      transition: all .15s; white-space: nowrap; display: inline-block; font-family:'Inter',sans-serif;
     }
+    .prompt-chip:hover { background: #2a2860; border-color: var(--purple); color: #c4b5fd; }
+
+    .hashtag-pill { background: #1e1b4b; color: var(--purple-l); border: 1px solid #3730a3; padding: 3px 10px; border-radius: 20px; font-size: 12px; display: inline-block; margin: 2px; }
+
+    .action-bar { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid #1e1e1e; margin-top: 6px; }
+    .error-box { background: #1c0a0a; border: 1px solid #7f1d1d; border-radius: 10px; padding: 14px; color: #fca5a5; font-size: 13px; }
+
+    /* ── CAROUSEL VIEWER ── */
+    .cv-wrap { position: relative; }
+    .cv-viewport { overflow: hidden; border-radius: 12px; box-shadow: 0 24px 70px rgba(0,0,0,.75); }
+    .cv-track { display: flex; transition: transform .5s cubic-bezier(.77,0,.18,1); }
+    .cv-nav { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 0 6px; }
+    .cv-arrow { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: #e5e5e5; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+    .cv-arrow:hover { background: rgba(196,98,45,.3); border-color: var(--orange); }
+    .cv-arrow:disabled { opacity: .2; cursor: default; }
+    .cv-dots { display: flex; gap: 7px; }
+    .cv-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.2); cursor: pointer; border: none; transition: all .25s; }
+    .cv-dot.active { background: var(--tan); transform: scale(1.5); }
+    .cv-counter { font-size: 11px; color: #4b5563; letter-spacing: 2px; min-width: 36px; text-align: center; }
+
+    /* slide download bar */
+    .cv-dlbar { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+    .cv-dlbtn { background: rgba(201,168,124,.08); border: 1px solid rgba(201,168,124,.2); color: var(--tan); padding: 6px 14px; border-radius: 4px; font-size: 11px; letter-spacing: .5px; cursor: pointer; font-family:'Inter',sans-serif; transition: all .15s; white-space: nowrap; }
+    .cv-dlbtn:hover { background: rgba(196,98,45,.2); border-color: var(--orange); color: var(--cream); }
+    .cv-dlall { background: var(--orange); border: none; color: #fff; padding: 10px 24px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; font-family:'Inter',sans-serif; transition: opacity .2s; width: 100%; max-width: 320px; margin-top: 6px; }
+    .cv-dlall:hover { opacity: .85; }
+    .cv-dlall:disabled { opacity: .4; cursor: wait; }
+
+    /* ── POST PREVIEW ── */
+    .post-frame { width: 100%; aspect-ratio: 1; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+
+    /* ── STORY PREVIEW ── */
+    .story-frame { width: 180px; aspect-ratio: 9/16; flex-shrink: 0; position: relative; overflow: hidden; display: flex; flex-direction: column; border-radius: 14px; }
+
+    /* ── APPROVED BADGE ── */
+    .abadge { position: fixed; bottom: 24px; right: 24px; z-index: 100; background: var(--purple); color: white; border: none; cursor: pointer; width: 52px; height: 52px; border-radius: 50%; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(139,92,246,.5); font-size: 20px; transition: transform .2s; }
+    .abadge:hover { transform: scale(1.08); }
+    .abadge.show { display: flex; }
+    .acnt { position: absolute; top: -3px; right: -3px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+    /* ── DRAWER ── */
+    .drawer { position: fixed; right: 0; top: 0; bottom: 0; width: 360px; max-width: 100vw; background: #111; border-left: 1px solid var(--bord); z-index: 200; transform: translateX(100%); transition: transform .3s cubic-bezier(.4,0,.2,1); overflow-y: auto; padding: 24px; }
+    .drawer.open { transform: translateX(0); }
+    .doverlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 199; display: none; }
+    .doverlay.open { display: block; }
+    .ditem { background: var(--surf); border: 1px solid var(--bord); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+
+    /* ── TOAST ── */
+    .toast { position: fixed; bottom: 88px; right: 24px; z-index: 300; background: #1e1e1e; border: 1px solid var(--bord); border-radius: 10px; padding: 10px 16px; font-size: 13px; color: #e5e5e5; box-shadow: 0 8px 32px rgba(0,0,0,.5); display: flex; align-items: center; gap: 8px; opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    input[type="file"] { padding: 7px 10px; font-size: 13px; border-radius: 8px !important; }
+    input[type="file"]::-webkit-file-upload-button { background: #2a2a2a; color: #d1d5db; border: none; padding: 3px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; margin-right: 8px; }
   </style>
 </head>
-<body class="min-h-screen">
+<body>
 
-  <!-- Header -->
-  <header class="border-b border-[#2a2a2a] sticky top-0 z-50" style="background:#0a0a0a;">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
-        </div>
-        <div>
-          <h1 class="font-bold text-white text-sm leading-none">Instagram Content Studio</h1>
-          <p class="text-[10px] text-gray-500 mt-0.5">Adição Digital &amp; Neurociência</p>
-        </div>
+<!-- HEADER -->
+<header style="background:#0a0a0a;border-bottom:1px solid #1a1a1a;" class="sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
       </div>
-      <div class="flex items-center gap-3">
-        <div id="api-status" class="flex items-center gap-2 text-xs text-gray-500">
-          <span id="status-dot" class="w-2 h-2 rounded-full bg-gray-600"></span>
-          <span id="status-text">Sem API Key</span>
-        </div>
-        <button onclick="document.getElementById('config-panel').classList.toggle('hidden')"
-          class="text-xs text-gray-400 hover:text-purple-400 transition-colors flex items-center gap-1">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M21 12h-2M5 12H3M12 21v-2M12 5V3"/></svg>
-          Config
-        </button>
+      <div>
+        <span class="font-bold text-white text-sm">Content Studio</span>
+        <span class="text-gray-600 text-xs ml-2 hidden sm:inline">Adição Digital &amp; Neurociência</span>
       </div>
     </div>
-  </header>
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
+        <span id="api-dot" class="w-2 h-2 rounded-full transition-colors" style="background:#4b5563;"></span>
+        <span id="api-lbl" class="text-xs text-gray-600 hidden sm:block">Sem chave</span>
+      </div>
+      <button onclick="toggleCfg()" class="btn-g">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Configurar
+      </button>
+    </div>
+  </div>
+</header>
 
-  <!-- Config Panel -->
-  <div id="config-panel" class="hidden border-b border-[#2a2a2a]" style="background:#111;">
-    <div class="max-w-6xl mx-auto px-4 py-5">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="md:col-span-1">
-          <label>Anthropic API Key</label>
-          <div class="flex gap-2 mt-1">
-            <input type="password" id="api-key-input" class="api-key-input flex-1 rounded-lg px-3 py-2 text-sm" placeholder="sk-ant-..." />
-            <button onclick="saveApiKey()" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium">Salvar</button>
+<!-- CONFIG PANEL -->
+<div id="cfg-panel" class="hidden" style="background:#0d0d0d;border-bottom:1px solid #1a1a1a;">
+  <div class="max-w-6xl mx-auto px-5 py-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <label>Anthropic API Key</label>
+      <div class="flex gap-2">
+        <input type="password" id="api-key" class="rounded-lg px-3 py-2 text-sm flex-1" placeholder="sk-ant-..." style="font-family:monospace;letter-spacing:1px;" />
+        <button onclick="saveKey()" class="btn-p px-4 py-2 text-sm">Salvar</button>
+      </div>
+      <p class="text-xs text-gray-700 mt-1">Armazenada apenas no seu navegador</p>
+    </div>
+    <div>
+      <label>Tom de Voz</label>
+      <select id="tone" class="rounded-lg px-3 py-2 text-sm mt-1">
+        <option value="educativo e acessível">Educativo</option>
+        <option value="provocador e desafiador">Provocador</option>
+        <option value="emocional e humano">Emocional</option>
+        <option value="técnico e baseado em evidências">Técnico</option>
+      </select>
+    </div>
+    <div>
+      <label>Público-alvo</label>
+      <select id="aud" class="rounded-lg px-3 py-2 text-sm mt-1">
+        <option value="jovens, adolescentes e famílias">Jovens e Famílias</option>
+        <option value="líderes e equipes corporativas">Empresas</option>
+        <option value="profissionais de saúde mental e médicos">Profissionais de Saúde</option>
+        <option value="público geral interessado em saúde digital">Geral</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="max-w-6xl mx-auto px-4 py-6">
+
+  <!-- TABS -->
+  <div style="border-bottom:1px solid #1a1a1a;" class="mb-6 overflow-x-auto">
+    <div class="flex">
+      <button class="tab-btn active" onclick="switchTab('carousel',this)">🎠 Carrossel</button>
+      <button class="tab-btn" onclick="switchTab('post',this)">🖼️ Post Estático</button>
+      <button class="tab-btn" onclick="switchTab('story',this)">📱 Story</button>
+      <button class="tab-btn" onclick="switchTab('caption',this)">✍️ Legenda + CTA</button>
+    </div>
+  </div>
+
+  <!-- ═══════════ CARROSSEL ═══════════ -->
+  <div id="tab-carousel" class="tab-pane active">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div class="lg:col-span-2">
+        <div class="card p-5 space-y-4">
+          <h2 class="font-semibold text-white text-sm flex items-center gap-2">🎠 Carrossel <span class="text-gray-600 font-normal text-xs">5 a 7 slides</span></h2>
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="stag">💡 Inspirações prontas</span>
+              <button onclick="refreshChips('carousel')" class="text-xs text-purple-400 hover:text-purple-300 transition-colors">Ver outros →</button>
+            </div>
+            <div id="chips-carousel" class="flex flex-wrap gap-2"></div>
           </div>
-          <p class="text-xs text-gray-600 mt-1">Salva no localStorage do navegador</p>
+          <div><label>Briefing *</label><textarea id="c-brief" rows="4" class="rounded-lg px-3 py-2 text-sm resize-none" placeholder="Descreva o tema, ideia ou ângulo..."></textarea></div>
+          <div><label>Link de referência</label><input type="url" id="c-link" class="rounded-lg px-3 py-2 text-sm" placeholder="https://..." /></div>
+          <div>
+            <label>Arquivo .txt</label>
+            <input type="file" id="c-file" accept=".txt" class="rounded-lg text-sm" onchange="loadFile(this,'c-fc')" />
+            <textarea id="c-fc" rows="2" class="rounded-lg px-3 py-2 text-sm resize-none mt-2 hidden"></textarea>
+          </div>
+          <div><label>Número de slides</label><select id="c-n" class="rounded-lg px-3 py-2 text-sm"><option value="5">5 slides</option><option value="6" selected>6 slides</option><option value="7">7 slides</option></select></div>
+          <button id="c-btn" onclick="genCarousel()" class="btn-p w-full py-3 text-sm">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gerar Carrossel
+          </button>
         </div>
-        <div>
-          <label>Tom de Voz</label>
-          <select id="tone-select" class="w-full rounded-lg px-3 py-2 text-sm mt-1">
-            <option value="educativo">Educativo</option>
-            <option value="provocador">Provocador</option>
-            <option value="emocional">Emocional</option>
-            <option value="tecnico">Técnico</option>
-          </select>
-        </div>
-        <div>
-          <label>Público-alvo</label>
-          <select id="audience-select" class="w-full rounded-lg px-3 py-2 text-sm mt-1">
-            <option value="jovens e famílias">Jovens e Famílias</option>
-            <option value="empresas">Empresas</option>
-            <option value="profissionais de saúde">Profissionais de Saúde</option>
-            <option value="geral">Geral</option>
-          </select>
+      </div>
+      <div class="lg:col-span-3 space-y-3">
+        <div id="c-loading" class="hidden card p-12 flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-500 text-sm">Criando carrossel…</p></div>
+        <div id="c-error" class="hidden"></div>
+        <div id="c-out" class="hidden">
+          <div class="action-bar">
+            <button onclick="approveResult('carousel')" class="btn-g btn-approve">✅ Aprovar</button>
+            <button onclick="discardResult('c-out','carousel')" class="btn-g btn-reject">❌ Descartar</button>
+            <button onclick="dlAllSlides()" class="btn-g btn-dl">⬇️ Baixar todos</button>
+            <button onclick="genCarousel()" class="btn-g">🔄 Nova versão</button>
+            <button onclick="sendToCaption('carousel')" class="btn-g btn-leg">✍️ Usar como legenda</button>
+          </div>
+          <p id="c-title" class="text-sm font-semibold text-gray-300 mb-3"></p>
+          <div id="c-viewer"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 py-6">
-
-    <!-- Tabs -->
-    <div class="border-b border-[#2a2a2a] mb-6">
-      <div class="flex gap-0 overflow-x-auto">
-        <button class="tab-btn active px-5 py-3 text-sm font-medium text-gray-300 whitespace-nowrap" onclick="switchTab('carousel', this)">
-          <span class="mr-2">🎠</span>Carrossel
-        </button>
-        <button class="tab-btn px-5 py-3 text-sm font-medium text-gray-500 whitespace-nowrap" onclick="switchTab('post', this)">
-          <span class="mr-2">🖼️</span>Post Estático
-        </button>
-        <button class="tab-btn px-5 py-3 text-sm font-medium text-gray-500 whitespace-nowrap" onclick="switchTab('story', this)">
-          <span class="mr-2">📱</span>Story Vertical
-        </button>
-        <button class="tab-btn px-5 py-3 text-sm font-medium text-gray-500 whitespace-nowrap" onclick="switchTab('caption', this)">
-          <span class="mr-2">✍️</span>Legenda + CTA
-        </button>
-      </div>
-    </div>
-
-    <!-- TAB: CARROSSEL -->
-    <div id="tab-carousel" class="tab-content active">
-      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <!-- Form -->
-        <div class="lg:col-span-2 space-y-4">
-          <div class="slide-card p-5">
-            <h2 class="font-semibold text-white mb-4 flex items-center gap-2">
-              <span class="text-purple-400">🎠</span> Gerar Carrossel
-            </h2>
-            <div class="space-y-4">
-              <div>
-                <label>Briefing — tema, ideia ou ângulo *</label>
-                <textarea id="carousel-briefing" rows="4" class="w-full rounded-lg px-3 py-2 text-sm resize-none"
-                  placeholder="Ex: Os 5 sinais que mostram que o seu cérebro já está viciado em scroll..."></textarea>
-              </div>
-              <div>
-                <label>Link opcional (artigo, vídeo, pesquisa)</label>
-                <input type="url" id="carousel-link" class="w-full rounded-lg px-3 py-2 text-sm" placeholder="https://..." />
-              </div>
-              <div>
-                <label>Arquivo opcional (.txt ou .pdf)</label>
-                <input type="file" id="carousel-file" accept=".txt,.pdf" class="w-full rounded-lg text-sm" onchange="handleFileUpload(this, 'carousel-file-content')" />
-                <textarea id="carousel-file-content" rows="2" class="w-full rounded-lg px-3 py-2 text-sm resize-none mt-1 hidden" placeholder="Conteúdo do arquivo aparece aqui..."></textarea>
-              </div>
-              <div>
-                <label>Número de slides</label>
-                <select id="carousel-slides" class="w-full rounded-lg px-3 py-2 text-sm">
-                  <option value="5">5 slides</option>
-                  <option value="6" selected>6 slides</option>
-                  <option value="7">7 slides</option>
-                </select>
-              </div>
-              <button id="carousel-btn" onclick="generateCarousel()" class="btn-primary w-full py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                Gerar Carrossel
-              </button>
-            </div>
+  <!-- ═══════════ POST ═══════════ -->
+  <div id="tab-post" class="tab-pane">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div class="lg:col-span-2">
+        <div class="card p-5 space-y-4">
+          <h2 class="font-semibold text-white text-sm">🖼️ Post Estático</h2>
+          <div>
+            <div class="flex items-center justify-between mb-2"><span class="stag">💡 Inspirações prontas</span><button onclick="refreshChips('post')" class="text-xs text-purple-400 hover:text-purple-300">Ver outros →</button></div>
+            <div id="chips-post" class="flex flex-wrap gap-2"></div>
           </div>
-        </div>
-
-        <!-- Output -->
-        <div class="lg:col-span-3">
-          <div id="carousel-loading" class="hidden flex items-center justify-center py-20">
-            <div class="text-center space-y-3">
-              <div class="spinner mx-auto"></div>
-              <p class="text-gray-500 text-sm">Gerando carrossel...</p>
-            </div>
+          <div><label>Briefing *</label><textarea id="p-brief" rows="4" class="rounded-lg px-3 py-2 text-sm resize-none" placeholder="Ex: dado impactante sobre tempo de tela..."></textarea></div>
+          <div><label>Link de referência</label><input type="url" id="p-link" class="rounded-lg px-3 py-2 text-sm" placeholder="https://..." /></div>
+          <div>
+            <label>Arquivo .txt</label>
+            <input type="file" id="p-file" accept=".txt" class="rounded-lg text-sm" onchange="loadFile(this,'p-fc')" />
+            <textarea id="p-fc" rows="2" class="rounded-lg px-3 py-2 text-sm resize-none mt-2 hidden"></textarea>
           </div>
-          <div id="carousel-error" class="hidden"></div>
-          <div id="carousel-result" class="result-area space-y-4">
-            <!-- Action buttons -->
-            <div class="flex items-center justify-between">
-              <span class="section-label">Resultado</span>
-              <div class="flex gap-2">
-                <button onclick="copyResult('carousel')" class="copy-btn">📋 Copiar tudo</button>
-                <button onclick="generateCarousel()" class="copy-btn">🔄 Gerar novamente</button>
-                <button onclick="sendToCaption('carousel')" class="copy-btn" style="background:#1e1b4b;color:#A78BFA;">✍️ Usar como base</button>
-              </div>
-            </div>
-            <div id="carousel-cards" class="space-y-3"></div>
-          </div>
+          <div><label>Formato visual</label><select id="p-fmt" class="rounded-lg px-3 py-2 text-sm"><option value="frase de impacto">Frase de impacto</option><option value="dado + contexto">Dado + contexto</option><option value="pergunta provocadora">Pergunta provocadora</option><option value="mini infográfico descritivo">Mini infográfico</option></select></div>
+          <button id="p-btn" onclick="genPost()" class="btn-p w-full py-3 text-sm">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gerar Post
+          </button>
         </div>
       </div>
-    </div>
-
-    <!-- TAB: POST ESTÁTICO -->
-    <div id="tab-post" class="tab-content">
-      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div class="lg:col-span-2 space-y-4">
-          <div class="slide-card p-5">
-            <h2 class="font-semibold text-white mb-4 flex items-center gap-2">
-              <span class="text-purple-400">🖼️</span> Gerar Post Estático
-            </h2>
-            <div class="space-y-4">
-              <div>
-                <label>Briefing *</label>
-                <textarea id="post-briefing" rows="4" class="w-full rounded-lg px-3 py-2 text-sm resize-none"
-                  placeholder="Ex: Dado sobre quanto tempo os jovens passam em telas por dia..."></textarea>
-              </div>
-              <div>
-                <label>Link opcional</label>
-                <input type="url" id="post-link" class="w-full rounded-lg px-3 py-2 text-sm" placeholder="https://..." />
-              </div>
-              <div>
-                <label>Arquivo opcional (.txt ou .pdf)</label>
-                <input type="file" id="post-file" accept=".txt,.pdf" class="w-full rounded-lg text-sm" onchange="handleFileUpload(this, 'post-file-content')" />
-                <textarea id="post-file-content" rows="2" class="w-full rounded-lg px-3 py-2 text-sm resize-none mt-1 hidden"></textarea>
-              </div>
-              <div>
-                <label>Formato visual</label>
-                <select id="post-format" class="w-full rounded-lg px-3 py-2 text-sm">
-                  <option value="frase de impacto">Frase de impacto</option>
-                  <option value="dado + contexto">Dado + contexto</option>
-                  <option value="pergunta provocadora">Pergunta provocadora</option>
-                  <option value="mini infográfico">Mini infográfico</option>
-                </select>
-              </div>
-              <button id="post-btn" onclick="generatePost()" class="btn-primary w-full py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                Gerar Post
-              </button>
-            </div>
+      <div class="lg:col-span-3 space-y-3">
+        <div id="p-loading" class="hidden card p-12 flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-500 text-sm">Criando post…</p></div>
+        <div id="p-error" class="hidden"></div>
+        <div id="p-out" class="hidden">
+          <div class="action-bar">
+            <button onclick="approveResult('post')" class="btn-g btn-approve">✅ Aprovar</button>
+            <button onclick="discardResult('p-out','post')" class="btn-g btn-reject">❌ Descartar</button>
+            <button onclick="dlEl('p-preview','post-estatico')" class="btn-g btn-dl">⬇️ Baixar PNG</button>
+            <button onclick="genPost()" class="btn-g">🔄 Nova versão</button>
+            <button onclick="sendToCaption('post')" class="btn-g btn-leg">✍️ Usar como legenda</button>
           </div>
-        </div>
-        <div class="lg:col-span-3">
-          <div id="post-loading" class="hidden flex items-center justify-center py-20">
-            <div class="text-center space-y-3"><div class="spinner mx-auto"></div><p class="text-gray-500 text-sm">Gerando post...</p></div>
-          </div>
-          <div id="post-error" class="hidden"></div>
-          <div id="post-result" class="result-area space-y-4">
-            <div class="flex items-center justify-between">
-              <span class="section-label">Resultado</span>
-              <div class="flex gap-2">
-                <button onclick="copyResult('post')" class="copy-btn">📋 Copiar tudo</button>
-                <button onclick="generatePost()" class="copy-btn">🔄 Gerar novamente</button>
-                <button onclick="sendToCaption('post')" class="copy-btn" style="background:#1e1b4b;color:#A78BFA;">✍️ Usar como base</button>
-              </div>
-            </div>
-            <div id="post-cards" class="space-y-4"></div>
-          </div>
+          <div id="p-preview-wrap"></div>
+          <div id="p-details" class="card p-4 mt-3 text-sm space-y-3"></div>
         </div>
       </div>
-    </div>
-
-    <!-- TAB: STORY -->
-    <div id="tab-story" class="tab-content">
-      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div class="lg:col-span-2 space-y-4">
-          <div class="slide-card p-5">
-            <h2 class="font-semibold text-white mb-4 flex items-center gap-2">
-              <span class="text-purple-400">📱</span> Gerar Story Vertical
-            </h2>
-            <div class="space-y-4">
-              <div>
-                <label>Briefing *</label>
-                <textarea id="story-briefing" rows="4" class="w-full rounded-lg px-3 py-2 text-sm resize-none"
-                  placeholder="Ex: Reflexão sobre como o dopamine loop das redes funciona..."></textarea>
-              </div>
-              <div>
-                <label>Tipo de story</label>
-                <select id="story-type" class="w-full rounded-lg px-3 py-2 text-sm">
-                  <option value="enquete">Enquete</option>
-                  <option value="reflexão">Reflexão</option>
-                  <option value="dado chocante">Dado chocante</option>
-                  <option value="bastidor">Bastidor</option>
-                  <option value="CTA direto">CTA direto</option>
-                </select>
-              </div>
-              <button id="story-btn" onclick="generateStory()" class="btn-primary w-full py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                Gerar Story
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="lg:col-span-3">
-          <div id="story-loading" class="hidden flex items-center justify-center py-20">
-            <div class="text-center space-y-3"><div class="spinner mx-auto"></div><p class="text-gray-500 text-sm">Gerando story...</p></div>
-          </div>
-          <div id="story-error" class="hidden"></div>
-          <div id="story-result" class="result-area space-y-4">
-            <div class="flex items-center justify-between">
-              <span class="section-label">Resultado</span>
-              <div class="flex gap-2">
-                <button onclick="copyResult('story')" class="copy-btn">📋 Copiar tudo</button>
-                <button onclick="generateStory()" class="copy-btn">🔄 Gerar novamente</button>
-                <button onclick="sendToCaption('story')" class="copy-btn" style="background:#1e1b4b;color:#A78BFA;">✍️ Usar como base</button>
-              </div>
-            </div>
-            <div id="story-cards" class="space-y-4"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: LEGENDA -->
-    <div id="tab-caption" class="tab-content">
-      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div class="lg:col-span-2 space-y-4">
-          <div class="slide-card p-5">
-            <h2 class="font-semibold text-white mb-4 flex items-center gap-2">
-              <span class="text-purple-400">✍️</span> Gerar Legenda + CTA
-            </h2>
-            <div class="space-y-4">
-              <div>
-                <label>Briefing ou conteúdo base *</label>
-                <textarea id="caption-briefing" rows="6" class="w-full rounded-lg px-3 py-2 text-sm resize-none"
-                  placeholder="Cole aqui o briefing ou o conteúdo já gerado nas outras abas..."></textarea>
-              </div>
-              <div>
-                <label>Objetivo da legenda</label>
-                <select id="caption-goal" class="w-full rounded-lg px-3 py-2 text-sm">
-                  <option value="engajamento (curtidas e comentários)">Engajamento</option>
-                  <option value="salvar o post">Salvar</option>
-                  <option value="compartilhar">Compartilhar</option>
-                  <option value="clicar no link da bio">Clicar no link</option>
-                  <option value="enviar mensagem via DM">DM</option>
-                </select>
-              </div>
-              <div>
-                <label>Comprimento</label>
-                <select id="caption-length" class="w-full rounded-lg px-3 py-2 text-sm">
-                  <option value="curta (máximo 5 linhas, direta e impactante)">Curta (até 5 linhas)</option>
-                  <option value="média (até 15 linhas, com contexto e valor)" selected>Média (até 15 linhas)</option>
-                  <option value="longa (storytelling completo, emocional e transformador)">Longa (storytelling)</option>
-                </select>
-              </div>
-              <button id="caption-btn" onclick="generateCaption()" class="btn-primary w-full py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                Gerar Legenda
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="lg:col-span-3">
-          <div id="caption-loading" class="hidden flex items-center justify-center py-20">
-            <div class="text-center space-y-3"><div class="spinner mx-auto"></div><p class="text-gray-500 text-sm">Gerando legenda...</p></div>
-          </div>
-          <div id="caption-error" class="hidden"></div>
-          <div id="caption-result" class="result-area space-y-4">
-            <div class="flex items-center justify-between">
-              <span class="section-label">Resultado</span>
-              <div class="flex gap-2">
-                <button onclick="copyResult('caption')" class="copy-btn">📋 Copiar tudo</button>
-                <button onclick="generateCaption()" class="copy-btn">🔄 Gerar novamente</button>
-              </div>
-            </div>
-            <div id="caption-cards" class="space-y-4"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- Toast notification -->
-  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
-    <div class="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-3 text-sm text-white shadow-2xl flex items-center gap-2">
-      <span id="toast-icon">✅</span>
-      <span id="toast-msg">Copiado!</span>
     </div>
   </div>
 
+  <!-- ═══════════ STORY ═══════════ -->
+  <div id="tab-story" class="tab-pane">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div class="lg:col-span-2">
+        <div class="card p-5 space-y-4">
+          <h2 class="font-semibold text-white text-sm">📱 Story Vertical</h2>
+          <div>
+            <div class="flex items-center justify-between mb-2"><span class="stag">💡 Inspirações prontas</span><button onclick="refreshChips('story')" class="text-xs text-purple-400 hover:text-purple-300">Ver outros →</button></div>
+            <div id="chips-story" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div><label>Briefing *</label><textarea id="s-brief" rows="4" class="rounded-lg px-3 py-2 text-sm resize-none" placeholder="Ex: reflexão sobre o dopamine loop..."></textarea></div>
+          <div><label>Tipo de story</label><select id="s-type" class="rounded-lg px-3 py-2 text-sm"><option value="enquete">Enquete</option><option value="reflexão impactante">Reflexão</option><option value="dado chocante">Dado chocante</option><option value="bastidor pessoal">Bastidor</option><option value="CTA direto">CTA direto</option></select></div>
+          <button id="s-btn" onclick="genStory()" class="btn-p w-full py-3 text-sm">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gerar Story
+          </button>
+        </div>
+      </div>
+      <div class="lg:col-span-3 space-y-3">
+        <div id="s-loading" class="hidden card p-12 flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-500 text-sm">Criando story…</p></div>
+        <div id="s-error" class="hidden"></div>
+        <div id="s-out" class="hidden">
+          <div class="action-bar">
+            <button onclick="approveResult('story')" class="btn-g btn-approve">✅ Aprovar</button>
+            <button onclick="discardResult('s-out','story')" class="btn-g btn-reject">❌ Descartar</button>
+            <button onclick="dlEl('s-preview','story')" class="btn-g btn-dl">⬇️ Baixar PNG</button>
+            <button onclick="genStory()" class="btn-g">🔄 Nova versão</button>
+            <button onclick="sendToCaption('story')" class="btn-g btn-leg">✍️ Usar como legenda</button>
+          </div>
+          <div class="flex gap-4 items-start flex-wrap">
+            <div id="s-preview-wrap"></div>
+            <div id="s-details" class="flex-1 min-w-0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ LEGENDA ═══════════ -->
+  <div id="tab-caption" class="tab-pane">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div class="lg:col-span-2">
+        <div class="card p-5 space-y-4">
+          <h2 class="font-semibold text-white text-sm">✍️ Legenda + CTA</h2>
+          <div>
+            <div class="flex items-center justify-between mb-2"><span class="stag">💡 Inspirações prontas</span><button onclick="refreshChips('caption')" class="text-xs text-purple-400 hover:text-purple-300">Ver outros →</button></div>
+            <div id="chips-caption" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div><label>Briefing ou conteúdo base *</label><textarea id="leg-brief" rows="6" class="rounded-lg px-3 py-2 text-sm resize-none" placeholder="Cole o conteúdo gerado ou descreva o tema…"></textarea></div>
+          <div><label>Objetivo</label><select id="leg-goal" class="rounded-lg px-3 py-2 text-sm"><option value="gerar engajamento (curtidas e comentários)">Engajamento</option><option value="fazer o seguidor salvar o post">Salvar</option><option value="fazer o seguidor compartilhar">Compartilhar</option><option value="levar ao link da bio">Link na bio</option><option value="gerar mensagens no DM">DM</option></select></div>
+          <div><label>Comprimento</label><select id="leg-len" class="rounded-lg px-3 py-2 text-sm"><option value="curta (máximo 5 linhas, direta e impactante)">Curta (até 5 linhas)</option><option value="média (até 15 linhas, com contexto e valor)" selected>Média (até 15 linhas)</option><option value="longa no estilo storytelling emocional">Longa (storytelling)</option></select></div>
+          <button id="leg-btn" onclick="genCaption()" class="btn-p w-full py-3 text-sm">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gerar Legenda
+          </button>
+        </div>
+      </div>
+      <div class="lg:col-span-3 space-y-3">
+        <div id="leg-loading" class="hidden card p-12 flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-500 text-sm">Escrevendo legenda…</p></div>
+        <div id="leg-error" class="hidden"></div>
+        <div id="leg-out" class="hidden">
+          <div class="action-bar">
+            <button onclick="approveResult('caption')" class="btn-g btn-approve">✅ Aprovar</button>
+            <button onclick="discardResult('leg-out','caption')" class="btn-g btn-reject">❌ Descartar</button>
+            <button onclick="copyCaption()" class="btn-g btn-dl">📋 Copiar legenda</button>
+            <button onclick="genCaption()" class="btn-g">🔄 Nova versão</button>
+          </div>
+          <div id="leg-cards" class="space-y-4"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- DRAWER -->
+<div id="doverlay" class="doverlay" onclick="closeDrawer()"></div>
+<div id="drawer" class="drawer">
+  <div class="flex items-center justify-between mb-5">
+    <h3 class="font-bold text-white">Conteúdo Aprovado</h3>
+    <button onclick="closeDrawer()" class="btn-g text-xs">Fechar</button>
+  </div>
+  <p id="drawer-empty" class="text-gray-600 text-sm">Nenhum conteúdo aprovado ainda.</p>
+  <div id="drawer-list"></div>
+  <button onclick="clearApproved()" id="clr-btn" class="hidden btn-g btn-reject w-full justify-center mt-4">🗑️ Limpar tudo</button>
+</div>
+
+<!-- APPROVED BADGE -->
+<button class="abadge" id="abadge" onclick="openDrawer()">
+  ✅<span class="acnt" id="acnt" style="display:none;"></span>
+</button>
+
+<!-- TOAST -->
+<div id="toast" class="toast"><span id="ti"></span><span id="tm"></span></div>
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════ -->
 <script>
-// ==========================================
-// INIT
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-  const savedKey = localStorage.getItem('anthropic_api_key');
-  if (savedKey) {
-    document.getElementById('api-key-input').value = savedKey;
-    updateApiStatus(true);
-  }
-  const savedTone = localStorage.getItem('tone');
-  if (savedTone) document.getElementById('tone-select').value = savedTone;
-  const savedAudience = localStorage.getItem('audience');
-  if (savedAudience) document.getElementById('audience-select').value = savedAudience;
+/* ── PROMPT BANK ── */
+const PROMPTS = {
+  carousel:[
+    "Os 5 sinais que mostram que seu cérebro já está viciado em scroll",
+    "O que acontece no cérebro quando você posta e espera pelas curtidas",
+    "Por que é tão difícil largar o celular? A neurociência explica",
+    "7 hábitos digitais que estão sabotando seu sono sem você perceber",
+    "A diferença entre uso saudável e adição digital — onde você está?",
+    "Como os algoritmos foram projetados para sequestrar sua atenção",
+    "O que a ciência diz sobre crianças, adolescentes e tempo de tela",
+    "5 perguntas essenciais para conversar sobre celular com adolescentes",
+    "Dopamina: o que é e como as redes sociais a exploram no dia a dia",
+    "A epidemia silenciosa: adição digital nas empresas e queda de produtividade",
+    "Como o FOMO é usado para te manter preso nas redes sociais",
+    "Detox digital: o que funciona e o que é modismo sem evidência",
+    "Neurociência do prazer: como o cérebro aprende a querer mais tela",
+    "O impacto do celular no sono dos adolescentes — dados alarmantes",
+  ],
+  post:[
+    "Brasil lidera ranking mundial: média de 9h diárias em telas",
+    "Uma notificação reduz o foco por 23 minutos — mesmo após fechar",
+    "70% dos adolescentes relatam ansiedade quando ficam sem celular",
+    "Cada like libera dopamina — o mesmo mecanismo do jogo patológico",
+    "Crianças de 2 anos já passam mais tempo em telas do que brincando",
+    "Você checa o celular em média 96 vezes por dia — 1 vez a cada 10min",
+    "A luz azul da tela atrasa o sono em até 3 horas por noite",
+    "Redes sociais foram projetadas por ex-viciados para criar dependência",
+    "O cérebro adolescente é 3x mais vulnerável à adição digital",
+    "Pergunta que todo pai deveria fazer antes de dar o primeiro smartphone",
+    "O que ninguém te conta sobre os bastidores do algoritmo do TikTok",
+    "Atenção fragmentada: o custo invisível do uso excessivo de telas",
+  ],
+  story:[
+    "Quando foi a última vez que você ficou 1h sem checar o celular?",
+    "Dado chocante sobre o tempo de tela de crianças brasileiras hoje",
+    "Bastidor: o que acontece depois de uma palestra sobre adição digital",
+    "Enquete: você conseguiria 24h sem redes sociais?",
+    "O que acontece no seu cérebro enquanto você assiste este story",
+    "Desafio: 7 dias reduzindo 1h de tela por dia. Topa?",
+    "O momento em que percebi que eu mesmo era dependente de tela",
+    "Uma pergunta que vai te deixar desconfortável hoje",
+    "Reflexão: você usa o celular ou o celular usa você?",
+    "CTA para quem quer conversar sobre saúde digital da sua equipe",
+    "Bastidor de palestra para executivos sobre foco e produtividade digital",
+    "Story de dado: o número que vai te fazer repensar seu uso das redes",
+  ],
+  caption:[
+    "Legenda para post sobre tempo de tela e saúde mental de jovens",
+    "Legenda para carrossel sobre neurociência da adição digital",
+    "Legenda provocativa sobre uso de celular durante o jantar em família",
+    "Legenda para estatística impactante sobre adolescentes e ansiedade",
+    "Legenda para anunciar palestra ou workshop sobre saúde digital",
+    "Legenda storytelling sobre minha jornada como palestrante",
+    "Legenda para engajar profissionais de saúde no tema adição digital",
+    "Legenda para post sobre produtividade e distração digital no trabalho",
+    "Legenda provocadora para pais de adolescentes",
+    "Legenda para compartilhar pesquisa recente sobre telas e sono",
+  ]
+};
+const pIdx = { carousel:[], post:[], story:[], caption:[] };
 
-  document.getElementById('tone-select').addEventListener('change', e => localStorage.setItem('tone', e.target.value));
-  document.getElementById('audience-select').addEventListener('change', e => localStorage.setItem('audience', e.target.value));
+function shuffle(a) { const r=[...a]; for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];} return r; }
+
+function initChips(tab) {
+  pIdx[tab] = shuffle([...Array(PROMPTS[tab].length).keys()]);
+  renderChips(tab);
+}
+function refreshChips(tab) { pIdx[tab] = shuffle([...Array(PROMPTS[tab].length).keys()]); renderChips(tab); }
+
+const BRIEF_IDS = { carousel:'c-brief', post:'p-brief', story:'s-brief', caption:'leg-brief' };
+function renderChips(tab) {
+  const c = document.getElementById('chips-'+tab); c.innerHTML='';
+  pIdx[tab].slice(0,4).forEach(i => {
+    const b = document.createElement('button'); b.className='prompt-chip';
+    b.textContent = PROMPTS[tab][i];
+    b.onclick = () => { document.getElementById(BRIEF_IDS[tab]).value = PROMPTS[tab][i]; toast('💡','Prompt carregado!'); };
+    c.appendChild(b);
+  });
+}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', () => {
+  const k = localStorage.getItem('anth_key');
+  if (k) { document.getElementById('api-key').value = k; setApiOK(true); }
+  const t=localStorage.getItem('tone'); if(t) document.getElementById('tone').value=t;
+  const a=localStorage.getItem('aud');  if(a) document.getElementById('aud').value=a;
+  document.getElementById('tone').onchange = e => localStorage.setItem('tone',e.target.value);
+  document.getElementById('aud').onchange  = e => localStorage.setItem('aud',e.target.value);
+  ['carousel','post','story','caption'].forEach(initChips);
+  renderBadge();
 });
 
-// ==========================================
-// API KEY
-// ==========================================
-function saveApiKey() {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key) return showToast('❌', 'Insira uma API Key');
-  if (!key.startsWith('sk-ant-')) return showToast('⚠️', 'Key inválida — deve começar com sk-ant-');
-  localStorage.setItem('anthropic_api_key', key);
-  updateApiStatus(true);
-  showToast('✅', 'API Key salva!');
-  document.getElementById('config-panel').classList.add('hidden');
+/* ── API KEY ── */
+function toggleCfg() { document.getElementById('cfg-panel').classList.toggle('hidden'); }
+function saveKey() {
+  const k = document.getElementById('api-key').value.trim();
+  if (!k.startsWith('sk-ant-')) { toast('⚠️','Key inválida — deve começar com sk-ant-'); return; }
+  localStorage.setItem('anth_key',k); setApiOK(true); toast('✅','API Key salva!');
+  document.getElementById('cfg-panel').classList.add('hidden');
+}
+function setApiOK(ok) {
+  document.getElementById('api-dot').style.background = ok ? '#22c55e' : '#4b5563';
+  const l = document.getElementById('api-lbl');
+  l.textContent = ok ? 'API Key ativa' : 'Sem chave';
+  l.style.color  = ok ? '#4ade80' : '#6b7280';
+}
+const gKey  = () => localStorage.getItem('anth_key') || '';
+const gTone = () => document.getElementById('tone').value;
+const gAud  = () => document.getElementById('aud').value;
+
+/* ── TABS ── */
+function switchTab(n,b) {
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active'); b.classList.add('active');
 }
 
-function updateApiStatus(active) {
-  const dot = document.getElementById('status-dot');
-  const text = document.getElementById('status-text');
-  if (active) {
-    dot.style.background = '#22c55e';
-    text.textContent = 'API Key ativa';
-    text.style.color = '#22c55e';
-  } else {
-    dot.style.background = '#6b7280';
-    text.textContent = 'Sem API Key';
-    text.style.color = '#6b7280';
-  }
+/* ── FILE ── */
+function loadFile(inp,tid) {
+  const f=inp.files[0]; if(!f) return;
+  const t=document.getElementById(tid); t.classList.remove('hidden');
+  const r=new FileReader(); r.onload=e=>{t.value=e.target.result.slice(0,3000);toast('✅','Arquivo carregado!');};
+  r.readAsText(f);
 }
 
-function getApiKey() { return localStorage.getItem('anthropic_api_key') || ''; }
-function getTone() { return document.getElementById('tone-select')?.value || 'educativo'; }
-function getAudience() { return document.getElementById('audience-select')?.value || 'geral'; }
-
-// ==========================================
-// TABS
-// ==========================================
-function switchTab(name, btn) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.style.color = ''; });
-  document.getElementById('tab-' + name).classList.add('active');
-  btn.classList.add('active');
-}
-
-// ==========================================
-// FILE UPLOAD
-// ==========================================
-function handleFileUpload(input, targetId) {
-  const file = input.files[0];
-  if (!file) return;
-  const target = document.getElementById(targetId);
-  target.classList.remove('hidden');
-
-  if (file.type === 'application/pdf') {
-    target.value = '[Arquivo PDF carregado — conteúdo não pode ser extraído diretamente no browser. Use o briefing para descrever o conteúdo.]';
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = e => {
-    target.value = e.target.result.substring(0, 3000);
-    showToast('✅', 'Arquivo carregado!');
-  };
-  reader.readAsText(file);
-}
-
-// ==========================================
-// API CALL
-// ==========================================
-async function callClaude(systemPrompt, userMessage) {
-  const key = getApiKey();
-  if (!key) throw new Error('API Key não encontrada. Clique em "Config" e insira sua chave.');
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-opus-4-5',
-      max_tokens: 2000,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userMessage }]
-    })
+/* ── API ── */
+async function callAPI(sys,usr) {
+  const k=gKey(); if(!k) throw new Error('Insira sua API Key em "Configurar".');
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-opus-4-5',max_tokens:2048,system:sys,messages:[{role:'user',content:usr}]})
   });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    const msg = err?.error?.message || `Erro ${response.status}`;
-    throw new Error(msg);
-  }
-
-  const data = await response.json();
-  const raw = data.content[0].text.trim();
-
-  // Strip markdown code fences if present
-  const cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
-  return JSON.parse(cleaned);
+  if(!r.ok){const e=await r.json().catch(()=>({})); throw new Error(e?.error?.message||`Erro HTTP ${r.status}`);}
+  const d=await r.json();
+  const raw=d.content[0].text.trim().replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/,'');
+  return JSON.parse(raw);
 }
 
-function showLoading(tab, show) {
-  document.getElementById(tab + '-loading').classList.toggle('hidden', !show);
-  document.getElementById(tab + '-result').classList.toggle('visible', false);
-  document.getElementById(tab + '-error').classList.add('hidden');
-  const btn = document.getElementById(tab + '-btn');
-  if (btn) btn.disabled = show;
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function isLight(h){const r=parseInt((h||'#000').slice(1,3)||'0',16),g=parseInt((h||'#000').slice(3,5)||'0',16),b=parseInt((h||'#000').slice(5,7)||'0',16);return(r*299+g*587+b*114)/1000>150;}
+
+let tTimer;
+function toast(icon,msg){
+  document.getElementById('ti').textContent=icon;
+  document.getElementById('tm').textContent=msg;
+  const t=document.getElementById('toast'); t.classList.add('show');
+  clearTimeout(tTimer); tTimer=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-function showError(tab, msg) {
-  const el = document.getElementById(tab + '-error');
-  el.innerHTML = `<div class="error-banner"><strong>Erro:</strong> ${escHtml(msg)}</div>`;
-  el.classList.remove('hidden');
-}
+/* ── CURRENT RESULTS ── */
+const CR = { carousel:null, post:null, story:null, caption:null };
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+function startL(tab){ document.getElementById(tab+'-loading').classList.remove('hidden'); document.getElementById(tab+'-out').classList.add('hidden'); document.getElementById(tab+'-error').classList.add('hidden'); const b=document.getElementById(tab+'-btn'); if(b)b.disabled=true; }
+function stopL(tab){ document.getElementById(tab+'-loading').classList.add('hidden'); const b=document.getElementById(tab+'-btn'); if(b)b.disabled=false; }
+function showErr(tab,msg){ const e=document.getElementById(tab+'-error'); e.innerHTML=`<div class="error-box">⚠️ ${esc(msg)}</div>`; e.classList.remove('hidden'); }
+function showOut(tab){ document.getElementById(tab+'-out').classList.remove('hidden'); }
 
-// ==========================================
-// TOAST
-// ==========================================
-let toastTimer;
-function showToast(icon, msg) {
-  const t = document.getElementById('toast');
-  document.getElementById('toast-icon').textContent = icon;
-  document.getElementById('toast-msg').textContent = msg;
-  t.classList.remove('hidden');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.add('hidden'), 2800);
-}
+/* ════════════════════════════════════════════════════
+   CAROUSEL GENERATE
+════════════════════════════════════════════════════ */
+async function genCarousel() {
+  const brief=document.getElementById('c-brief').value.trim();
+  if(!brief){toast('⚠️','Preencha o briefing');return;}
+  const link=document.getElementById('c-link').value.trim();
+  const file=document.getElementById('c-fc').value.trim();
+  const n=document.getElementById('c-n').value;
+  startL('carousel');
+  try {
+    const sys=`Você é um estrategista de conteúdo especializado em neurociência do comportamento e saúde digital. Crie carrosséis para Instagram que educam, provocam reflexão e geram salvamentos. Perfil do criador: palestrante que fala para escolas, empresas e profissionais de saúde no Brasil. Escreva sempre em PT-BR. Retorne APENAS JSON válido, sem markdown, sem explicações.`;
+    const usr=`Crie um carrossel de ${n} slides sobre: "${brief}"
+Tom: ${gTone()} | Público: ${gAud()}
+${link?'Referência: '+link:''}${file?'\nConteúdo:\n'+file.slice(0,1500):''}
 
-// ==========================================
-// COPY RESULT
-// ==========================================
-function copyResult(tab) {
-  const el = document.getElementById(tab + '-cards');
-  if (!el) return;
-  const text = el.innerText || el.textContent;
-  navigator.clipboard.writeText(text).then(() => showToast('📋', 'Copiado!')).catch(() => showToast('❌', 'Falha ao copiar'));
-}
-
-// ==========================================
-// SEND TO CAPTION
-// ==========================================
-function sendToCaption(sourceTab) {
-  const el = document.getElementById(sourceTab + '-cards');
-  if (!el) return;
-  const text = el.innerText || el.textContent;
-  document.getElementById('caption-briefing').value = text.substring(0, 2000);
-  // Switch to caption tab
-  const captionBtn = document.querySelector('[onclick*="caption"]');
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'caption'")) {
-      switchTab('caption', b);
-    }
-  });
-  showToast('✍️', 'Conteúdo enviado para Legenda!');
-}
-
-// ==========================================
-// CAROUSEL
-// ==========================================
-async function generateCarousel() {
-  const briefing = document.getElementById('carousel-briefing').value.trim();
-  if (!briefing) { showToast('⚠️', 'Preencha o briefing'); return; }
-
-  const link = document.getElementById('carousel-link').value.trim();
-  const fileContent = document.getElementById('carousel-file-content').value.trim();
-  const numSlides = document.getElementById('carousel-slides').value;
-  const tone = getTone();
-  const audience = getAudience();
-
-  showLoading('carousel', true);
-
-  const systemPrompt = `Você é um estrategista de conteúdo especializado em neurociência do comportamento e saúde digital. Crie carrosséis para Instagram que educam, provocam reflexão e geram salvamentos. Perfil do criador: palestrante que fala para escolas, empresas e profissionais de saúde no Brasil. Escreva sempre em PT-BR. Retorne APENAS JSON válido, sem markdown, sem explicações.`;
-
-  const userMsg = `Crie um carrossel de ${numSlides} slides sobre: "${briefing}"
-Tom de voz: ${tone}
-Público-alvo: ${audience}
-${link ? `Referência/link: ${link}` : ''}
-${fileContent ? `Conteúdo de referência:\n${fileContent.substring(0,1500)}` : ''}
-
-Retorne JSON com a estrutura exata abaixo (substitua os exemplos pelo conteúdo real):
+JSON exato (sem comentários):
 {
-  "titulo_carrossel": "Título geral do carrossel",
+  "titulo": "Título geral",
   "slides": [
     {
-      "numero": "01/${numSlides}",
-      "headline": "Título principal impactante (máx 8 palavras)",
-      "corpo": "Texto do slide com 2 a 3 linhas explicando o ponto",
-      "nota_design": {
-        "cor_fundo": "#hexcode",
-        "elemento_visual": "Descrição do elemento visual sugerido",
-        "emocao": "Emoção que este slide deve provocar"
-      },
+      "numero": "01/${n}",
+      "headline": "Headline impactante máx 8 palavras",
+      "corpo": "2 a 3 linhas de texto do slide",
+      "cor_fundo": "#hexcode",
+      "emocao": "emoção que este slide deve provocar",
+      "elemento_visual": "elemento visual sugerido",
       "cta": null
     }
   ]
 }
-O ÚLTIMO slide DEVE ter o campo "cta" preenchido com um CTA claro e direto.
-Todos os outros slides têm "cta": null.
-Retorne APENAS o JSON, sem nenhum texto antes ou depois.`;
-
-  try {
-    const data = await callClaude(systemPrompt, userMsg);
-    renderCarousel(data, numSlides);
-  } catch(e) {
-    showError('carousel', e.message);
-  } finally {
-    showLoading('carousel', false);
-    document.getElementById('carousel-result').classList.add('visible');
-  }
+Último slide: "cta" com chamada para ação clara. Demais: "cta": null. APENAS JSON.`;
+    const data=await callAPI(sys,usr);
+    CR.carousel=data;
+    renderCarousel(data,parseInt(n));
+    showOut('carousel');
+  } catch(e){showErr('carousel',e.message);}
+  finally{stopL('carousel');}
 }
 
-function renderCarousel(data, numSlides) {
-  const container = document.getElementById('carousel-cards');
-  container.innerHTML = '';
+/* ── EDITORIAL SLIDE BUILDER ── */
+const CREAM='#F5EFE4', DARK='#2C1F14', CHAR='#1A1209', ORANGE='#C4622D', TAN='#C9A87C', MUTED='#9C8370';
 
-  if (data.titulo_carrossel) {
-    const title = document.createElement('div');
-    title.className = 'mb-2';
-    title.innerHTML = `<h3 class="text-purple-400 font-semibold text-base">${escHtml(data.titulo_carrossel)}</h3>`;
-    container.appendChild(title);
+function buildSlide(s, idx, total) {
+  const isFirst = idx === 0;
+  const isLast  = idx === total - 1;
+  const rawBg   = (s.cor_fundo && /^#[0-9a-f]{6}$/i.test(s.cor_fundo)) ? s.cor_fundo : (isFirst || idx%2===0 ? CHAR : CREAM);
+  const light   = isLight(rawBg);
+  const textMain= light ? DARK  : CREAM;
+  const textSub = light ? MUTED : 'rgba(245,239,228,0.62)';
+  const textDim = light ? 'rgba(124,92,62,0.5)' : 'rgba(201,168,124,0.35)';
+  const divClr  = light ? TAN   : 'rgba(201,168,124,0.45)';
+  const brdClr  = light ? 'rgba(124,92,62,0.18)' : 'rgba(201,168,124,0.1)';
+  const tagClr  = light ? ORANGE : TAN;
+  const numLabel= s.numero || `${String(idx+1).padStart(2,'0')}/${total}`;
+
+  const w = '100%';
+
+  if (isFirst) {
+    return `
+      <div style="background:${rawBg};width:${w};aspect-ratio:1;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:44px;font-family:'Inter',sans-serif;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ORANGE},${TAN});"></div>
+        <p style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:${TAN};font-weight:500;margin-bottom:20px;">Saúde Digital</p>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(26px,5vw,38px);font-weight:900;line-height:1.1;color:${CREAM};margin-bottom:18px;">${esc(s.headline)}</h2>
+        <div style="width:32px;height:2px;background:${TAN};margin:0 auto 18px;"></div>
+        <p style="font-size:13px;line-height:1.7;color:rgba(245,239,228,0.6);max-width:300px;">${esc(s.corpo)}</p>
+        <p style="position:absolute;bottom:20px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(156,131,112,0.3);">deslize para o lado →</p>
+      </div>`;
   }
-
-  (data.slides || []).forEach((slide, i) => {
-    const isLast = i === (data.slides.length - 1);
-    const card = document.createElement('div');
-    card.className = 'slide-card p-4 transition-all duration-200';
-    if (isLast) card.style.borderColor = '#8B5CF6';
-
-    const bgColor = slide.nota_design?.cor_fundo || '#1a1a2e';
-    const numLabel = slide.numero || `${String(i+1).padStart(2,'0')}/${numSlides}`;
-
-    card.innerHTML = `
-      <div class="flex items-start gap-3">
-        <div class="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background:${escHtml(bgColor)};">
-          ${escHtml(numLabel.split('/')[0])}
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center justify-between gap-2 mb-1">
-            <span class="text-xs text-gray-600">${escHtml(numLabel)}</span>
-            ${isLast ? '<span class="text-xs bg-purple-900 text-purple-300 px-2 py-0.5 rounded-full">CTA</span>' : ''}
-          </div>
-          <h4 class="font-semibold text-white text-sm mb-1">${escHtml(slide.headline || '')}</h4>
-          <p class="text-gray-400 text-sm leading-relaxed mb-2">${escHtml(slide.corpo || '')}</p>
-          ${slide.cta ? `<div class="bg-purple-900/30 border border-purple-700/50 rounded-lg px-3 py-2 text-purple-300 text-sm font-medium">${escHtml(slide.cta)}</div>` : ''}
-          ${slide.nota_design ? `
-            <div class="mt-2 pt-2 border-t border-[#2a2a2a] flex items-start gap-3 flex-wrap">
-              <div style="width:20px;height:20px;border-radius:4px;background:${escHtml(slide.nota_design.cor_fundo || '#333')};flex-shrink:0;border:1px solid #2a2a2a;"></div>
-              <div class="text-xs text-gray-600 flex-1">
-                <span class="text-gray-500">Visual:</span> ${escHtml(slide.nota_design.elemento_visual || '')}
-                <span class="ml-2 text-gray-500">Emoção:</span> ${escHtml(slide.nota_design.emocao || '')}
-              </div>
-            </div>
-          ` : ''}
+  if (isLast) {
+    return `
+      <div style="background:${rawBg};width:${w};aspect-ratio:1;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:44px;font-family:'Inter',sans-serif;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ORANGE},${TAN});"></div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${TAN},${ORANGE});"></div>
+        <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${ORANGE};font-weight:600;margin-bottom:16px;">${esc(numLabel)}</p>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(22px,4vw,30px);font-weight:900;line-height:1.2;color:${textMain};margin-bottom:14px;">${esc(s.headline)}</h2>
+        <div style="width:32px;height:2px;background:${TAN};margin:0 auto 16px;"></div>
+        <p style="font-size:13px;line-height:1.7;color:${textSub};max-width:340px;margin-bottom:24px;">${esc(s.corpo)}</p>
+        ${s.cta?`<div style="display:inline-flex;align-items:center;gap:10px;background:${light?DARK:CREAM};color:${light?CREAM:DARK};padding:13px 22px;border-radius:4px;font-size:13px;font-weight:600;">🔖 &nbsp;${esc(s.cta)}</div>`:''}
+      </div>`;
+  }
+  // content slide
+  return `
+    <div style="background:${rawBg};width:${w};aspect-ratio:1;overflow:hidden;display:flex;flex-direction:column;padding:36px 40px 32px;justify-content:space-between;font-family:'Inter',sans-serif;">
+      <div>
+        <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${tagClr};font-weight:600;margin-bottom:14px;">${esc(numLabel)}</p>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(20px,3.5vw,28px);font-weight:900;line-height:1.2;color:${textMain};margin-bottom:18px;">${esc(s.headline)}</h2>
+        <div style="border-left:3px solid ${ORANGE};padding-left:16px;">
+          <p style="font-size:13px;line-height:1.7;color:${textSub};">${esc(s.corpo)}</p>
         </div>
       </div>
-    `;
-    container.appendChild(card);
+      <p style="font-size:11px;color:${textDim};padding-top:14px;border-top:1px solid ${brdClr};">${esc(s.emocao||'')}${s.elemento_visual?' · '+esc(s.elemento_visual):''}</p>
+    </div>`;
+}
+
+/* ── CAROUSEL VIEWER RENDER ── */
+let _cvSlides=[], _cvCur=0;
+
+function renderCarousel(data, n) {
+  document.getElementById('c-title').textContent = data.titulo || '';
+  _cvSlides = data.slides || [];
+  _cvCur = 0;
+
+  const vw = document.getElementById('c-viewer');
+  vw.innerHTML = '';
+
+  // Build slide HTML strings
+  const slideHTMLs = _cvSlides.map((s,i) => buildSlide(s,i,_cvSlides.length));
+
+  // Viewer wrapper
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = `
+    <div class="cv-wrap">
+      <div class="cv-viewport" id="cv-vp">
+        <div class="cv-track" id="cv-track">
+          ${slideHTMLs.map((h,i)=>`<div id="cvs-${i}" style="width:100%;flex-shrink:0;overflow:hidden;">${h}</div>`).join('')}
+        </div>
+      </div>
+      <div class="cv-nav">
+        <button class="cv-arrow" id="cv-prev" onclick="cvGo(-1)">‹</button>
+        <div class="cv-dots" id="cv-dots"></div>
+        <button class="cv-arrow" id="cv-next" onclick="cvGo(1)">›</button>
+        <span class="cv-counter" id="cv-cnt">1 / ${_cvSlides.length}</span>
+      </div>
+      <div class="cv-dlbar" id="cv-dlbar"></div>
+      <div class="cv-dlbar">
+        <button class="cv-dlall" id="cv-dlall" onclick="dlAllSlides()">⬇ Baixar todos os slides (PNG)</button>
+      </div>
+    </div>
+  `;
+  vw.appendChild(wrapper);
+
+  // Build dots
+  const dotsEl = document.getElementById('cv-dots');
+  _cvSlides.forEach((_,i) => {
+    const d = document.createElement('button');
+    d.className = 'cv-dot' + (i===0?' active':'');
+    d.onclick = () => cvGoTo(i);
+    dotsEl.appendChild(d);
   });
+
+  // Build dl buttons
+  const dlBar = document.getElementById('cv-dlbar');
+  _cvSlides.forEach((_,i) => {
+    const b = document.createElement('button');
+    b.className = 'cv-dlbtn';
+    b.textContent = `↓ Slide ${i+1}`;
+    b.onclick = () => dlSlide(i);
+    dlBar.appendChild(b);
+  });
+
+  cvGoTo(0);
 }
 
-// ==========================================
-// POST ESTÁTICO
-// ==========================================
-async function generatePost() {
-  const briefing = document.getElementById('post-briefing').value.trim();
-  if (!briefing) { showToast('⚠️', 'Preencha o briefing'); return; }
-
-  const link = document.getElementById('post-link').value.trim();
-  const fileContent = document.getElementById('post-file-content').value.trim();
-  const format = document.getElementById('post-format').value;
-  const tone = getTone();
-  const audience = getAudience();
-
-  showLoading('post', true);
-
-  const systemPrompt = `Você é um copywriter de conteúdo visual para Instagram. Crie textos de alto impacto para posts estáticos sobre adição digital e neurociência. Seja direto, provocador e memorável. Retorne APENAS JSON válido, sem markdown, sem explicações.`;
-
-  const userMsg = `Crie um post estático no formato "${format}" sobre: "${briefing}"
-Tom de voz: ${tone}
-Público-alvo: ${audience}
-${link ? `Referência: ${link}` : ''}
-${fileContent ? `Conteúdo de referência:\n${fileContent.substring(0,1500)}` : ''}
-
-Retorne JSON com esta estrutura exata:
-{
-  "texto_principal": "Texto hero da imagem (máx 15 palavras)",
-  "subtexto": "Uma linha complementar pequena",
-  "paleta": [
-    {"hex": "#XXXXXX", "nome": "Nome da cor", "uso": "Para o fundo/texto/destaque"},
-    {"hex": "#XXXXXX", "nome": "Nome da cor", "uso": "Para o fundo/texto/destaque"},
-    {"hex": "#XXXXXX", "nome": "Nome da cor", "uso": "Para o fundo/texto/destaque"}
-  ],
-  "layout": "Descrição detalhada do layout para o designer ou ferramenta de design"
+function cvGoTo(n) {
+  _cvCur = Math.max(0, Math.min(_cvSlides.length-1, n));
+  const track = document.getElementById('cv-track');
+  const vp    = document.getElementById('cv-vp');
+  if (track && vp) track.style.transform = `translateX(-${_cvCur * vp.offsetWidth}px)`;
+  document.querySelectorAll('.cv-dot').forEach((d,i) => d.classList.toggle('active', i===_cvCur));
+  const cnt  = document.getElementById('cv-cnt');  if(cnt) cnt.textContent = `${_cvCur+1} / ${_cvSlides.length}`;
+  const prev = document.getElementById('cv-prev'); if(prev) prev.disabled = _cvCur===0;
+  const next = document.getElementById('cv-next'); if(next) next.disabled = _cvCur===_cvSlides.length-1;
 }
-Retorne APENAS o JSON.`;
+function cvGo(d) { cvGoTo(_cvCur+d); }
 
+async function dlSlide(idx) {
+  const el = document.getElementById(`cvs-${idx}`);
+  if (!el) return;
+  const orig = document.getElementById('cv-track').style.transform;
+  document.getElementById('cv-track').style.transition = 'none';
+  cvGoTo(idx);
+  await new Promise(r=>setTimeout(r,150));
   try {
-    const data = await callClaude(systemPrompt, userMsg);
+    const canvas = await html2canvas(el.firstElementChild, { scale:2.5, useCORS:true, allowTaint:true, backgroundColor:null, logging:false });
+    const a=document.createElement('a');
+    a.download=`slide-${String(idx+1).padStart(2,'0')}.png`;
+    a.href=canvas.toDataURL('image/png'); a.click();
+    toast('✅',`Slide ${idx+1} baixado!`);
+  } catch(e){ toast('❌','Erro: '+e.message); }
+  document.getElementById('cv-track').style.transition='';
+}
+
+async function dlAllSlides() {
+  const btn = document.getElementById('cv-dlall');
+  if (!btn) return;
+  btn.disabled=true;
+  for(let i=0;i<_cvSlides.length;i++){
+    btn.textContent=`Exportando ${i+1}/${_cvSlides.length}…`;
+    await dlSlide(i);
+    await new Promise(r=>setTimeout(r,500));
+  }
+  btn.disabled=false;
+  btn.textContent='⬇ Baixar todos os slides (PNG)';
+}
+
+/* ════════════════════════════════════════════════════
+   POST GENERATE
+════════════════════════════════════════════════════ */
+async function genPost() {
+  const brief=document.getElementById('p-brief').value.trim();
+  if(!brief){toast('⚠️','Preencha o briefing');return;}
+  const link=document.getElementById('p-link').value.trim();
+  const file=document.getElementById('p-fc').value.trim();
+  const fmt=document.getElementById('p-fmt').value;
+  startL('post');
+  try {
+    const sys=`Você é um copywriter de conteúdo visual para Instagram. Crie textos de alto impacto para posts estáticos sobre adição digital e neurociência. Seja direto, provocador e memorável. Retorne APENAS JSON válido, sem markdown, sem explicações.`;
+    const usr=`Crie um post estático no formato "${fmt}" sobre: "${brief}"
+Tom: ${gTone()} | Público: ${gAud()}
+${link?'Referência: '+link:''}${file?'\nConteúdo:\n'+file.slice(0,1500):''}
+
+JSON exato:
+{
+  "texto_principal": "Hero text máx 15 palavras",
+  "subtexto": "Uma linha complementar",
+  "cor_fundo": "#hexcode fundo dominante",
+  "cor_texto": "#hexcode texto principal",
+  "cor_destaque": "#hexcode acento/destaque",
+  "nome_cor_fundo": "nome",
+  "nome_cor_texto": "nome",
+  "nome_cor_destaque": "nome",
+  "layout": "Descrição do layout para o designer",
+  "emoji_tema": "1 emoji representativo"
+}
+APENAS JSON.`;
+    const data=await callAPI(sys,usr);
+    CR.post=data;
     renderPost(data);
-  } catch(e) {
-    showError('post', e.message);
-  } finally {
-    showLoading('post', false);
-    document.getElementById('post-result').classList.add('visible');
-  }
+    showOut('post');
+  } catch(e){showErr('post',e.message);}
+  finally{stopL('post');}
 }
 
-function renderPost(data) {
-  const container = document.getElementById('post-cards');
-  container.innerHTML = '';
+function renderPost(d) {
+  const bg     = /^#[0-9a-f]{6}$/i.test(d.cor_fundo||'')  ? d.cor_fundo  : CHAR;
+  const textC  = /^#[0-9a-f]{6}$/i.test(d.cor_texto||'')  ? d.cor_texto  : CREAM;
+  const accent = /^#[0-9a-f]{6}$/i.test(d.cor_destaque||'')? d.cor_destaque: ORANGE;
+  const light  = isLight(bg);
+  const emoji  = d.emoji_tema || '💡';
 
-  // Hero text card
-  const heroCard = document.createElement('div');
-  heroCard.className = 'slide-card p-5';
-  const palette = data.paleta || [];
-  const bg1 = palette[0]?.hex || '#1a1a2e';
-  const bg2 = palette[1]?.hex || '#2d1b69';
-  heroCard.innerHTML = `
-    <div class="rounded-xl p-6 mb-4 text-center" style="background:linear-gradient(135deg,${escHtml(bg1)},${escHtml(bg2)});min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-      <p class="text-white font-bold text-lg leading-tight mb-2">${escHtml(data.texto_principal || '')}</p>
-      <p class="text-white/70 text-sm">${escHtml(data.subtexto || '')}</p>
-    </div>
-    <div class="space-y-2">
-      <p class="section-label">Paleta de cores</p>
-      <div class="flex gap-3 flex-wrap">
-        ${palette.map(c => `
-          <div class="flex items-center gap-2">
-            <div class="color-swatch" style="background:${escHtml(c.hex)};" title="${escHtml(c.hex)}"></div>
-            <div>
-              <p class="text-xs font-medium text-white">${escHtml(c.hex)}</p>
-              <p class="text-xs text-gray-500">${escHtml(c.nome)} — ${escHtml(c.uso)}</p>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
+  const wrap = document.getElementById('p-preview-wrap');
+  wrap.innerHTML = '';
+
+  const frame = document.createElement('div');
+  frame.id = 'p-preview';
+  frame.style.cssText = `width:100%;aspect-ratio:1;background:${bg};overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px;border-radius:12px;font-family:'Inter',sans-serif;`;
+  frame.innerHTML = `
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${accent},${accent}99);"></div>
+    <p style="font-size:38px;margin-bottom:18px;line-height:1;">${emoji}</p>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(22px,4vw,34px);font-weight:900;line-height:1.15;color:${textC};letter-spacing:-0.5px;max-width:80%;margin-bottom:14px;">${esc(d.texto_principal||'')}</h2>
+    <div style="width:36px;height:2px;background:${accent};margin:0 auto 14px;"></div>
+    <p style="font-size:13px;color:${textC};opacity:0.6;max-width:70%;">${esc(d.subtexto||'')}</p>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${accent}99,${accent});"></div>
   `;
-  container.appendChild(heroCard);
+  wrap.appendChild(frame);
 
-  // Layout description
-  if (data.layout) {
-    const layoutCard = document.createElement('div');
-    layoutCard.className = 'slide-card p-4';
-    layoutCard.innerHTML = `
-      <p class="section-label mb-2">Descrição do Layout</p>
-      <p class="text-gray-300 text-sm leading-relaxed">${escHtml(data.layout)}</p>
-    `;
-    container.appendChild(layoutCard);
-  }
-}
-
-// ==========================================
-// STORY
-// ==========================================
-async function generateStory() {
-  const briefing = document.getElementById('story-briefing').value.trim();
-  if (!briefing) { showToast('⚠️', 'Preencha o briefing'); return; }
-
-  const type = document.getElementById('story-type').value;
-  const tone = getTone();
-  const audience = getAudience();
-
-  showLoading('story', true);
-
-  const systemPrompt = `Você é um criador de stories virais para Instagram. Conteúdo sobre adição digital, uso de telas e neurociência do comportamento. Tom: direto, humano, às vezes incômodo. Retorne APENAS JSON válido, sem markdown, sem explicações.`;
-
-  const userMsg = `Crie um story do tipo "${type}" sobre: "${briefing}"
-Tom de voz: ${tone}
-Público-alvo: ${audience}
-
-Retorne JSON com esta estrutura exata:
-{
-  "texto_principal": "Texto curto e impactante do story",
-  "sticker_enquete": ${type === 'enquete' ? '{"pergunta": "Pergunta da enquete", "opcao_a": "Opção A", "opcao_b": "Opção B"}' : 'null'},
-  "musica_mood": "Sugestão de música/mood para o story",
-  "instrucao_visual": "O que mostrar no fundo do story — imagem, cor, vídeo, texto grande etc.",
-  "elementos_extras": ["elemento extra 1", "elemento extra 2"]
-}
-Retorne APENAS o JSON.`;
-
-  try {
-    const data = await callClaude(systemPrompt, userMsg);
-    renderStory(data, type);
-  } catch(e) {
-    showError('story', e.message);
-  } finally {
-    showLoading('story', false);
-    document.getElementById('story-result').classList.add('visible');
-  }
-}
-
-function renderStory(data, type) {
-  const container = document.getElementById('story-cards');
-  container.innerHTML = '';
-
-  // Story preview card (9:16 ratio suggestion)
-  const storyCard = document.createElement('div');
-  storyCard.className = 'slide-card p-5';
-  storyCard.innerHTML = `
-    <div class="flex gap-4">
-      <!-- Preview -->
-      <div class="flex-shrink-0 w-24 rounded-xl flex items-center justify-center text-center p-3"
-        style="background:linear-gradient(180deg,#1a0533,#0a0a0a);min-height:160px;border:1px solid #2a2a2a;">
-        <p class="text-white text-xs font-medium leading-tight">${escHtml((data.texto_principal || '').substring(0,80))}</p>
-      </div>
-      <!-- Content -->
-      <div class="flex-1 space-y-3">
-        <div>
-          <p class="section-label">Texto principal</p>
-          <p class="text-white font-semibold text-sm leading-relaxed">${escHtml(data.texto_principal || '')}</p>
-        </div>
-        ${data.sticker_enquete ? `
-          <div class="bg-[#0f0f0f] border border-[#2a2a2a] rounded-lg p-3">
-            <p class="section-label mb-2">Enquete</p>
-            <p class="text-white text-sm mb-2">${escHtml(data.sticker_enquete.pergunta || '')}</p>
-            <div class="flex gap-2">
-              <span class="bg-purple-800 text-purple-200 text-xs px-3 py-1 rounded-full">${escHtml(data.sticker_enquete.opcao_a || '')}</span>
-              <span class="bg-[#1a1a1a] border border-[#2a2a2a] text-gray-300 text-xs px-3 py-1 rounded-full">${escHtml(data.sticker_enquete.opcao_b || '')}</span>
-            </div>
-          </div>
-        ` : ''}
-        <div>
-          <p class="section-label">Música / Mood</p>
-          <p class="text-gray-300 text-sm">🎵 ${escHtml(data.musica_mood || '')}</p>
-        </div>
-      </div>
-    </div>
-  `;
-  container.appendChild(storyCard);
-
-  if (data.instrucao_visual) {
-    const visualCard = document.createElement('div');
-    visualCard.className = 'slide-card p-4';
-    visualCard.innerHTML = `
-      <p class="section-label mb-2">Instrução Visual</p>
-      <p class="text-gray-300 text-sm leading-relaxed">🎬 ${escHtml(data.instrucao_visual)}</p>
-    `;
-    container.appendChild(visualCard);
-  }
-
-  if (data.elementos_extras?.length) {
-    const extrasCard = document.createElement('div');
-    extrasCard.className = 'slide-card p-4';
-    extrasCard.innerHTML = `
-      <p class="section-label mb-2">Elementos Extras</p>
-      <ul class="space-y-1">
-        ${data.elementos_extras.map(e => `<li class="text-gray-300 text-sm flex items-start gap-2"><span class="text-purple-400 mt-0.5">•</span>${escHtml(e)}</li>`).join('')}
-      </ul>
-    `;
-    container.appendChild(extrasCard);
-  }
-}
-
-// ==========================================
-// LEGENDA
-// ==========================================
-async function generateCaption() {
-  const briefing = document.getElementById('caption-briefing').value.trim();
-  if (!briefing) { showToast('⚠️', 'Preencha o briefing ou conteúdo base'); return; }
-
-  const goal = document.getElementById('caption-goal').value;
-  const length = document.getElementById('caption-length').value;
-  const tone = getTone();
-  const audience = getAudience();
-
-  showLoading('caption', true);
-
-  const systemPrompt = `Você é um copywriter especializado em legendas de Instagram para criadores de conteúdo educativo no Brasil. Escreva legendas que param o scroll, criam conexão e geram ação. Retorne APENAS JSON válido, sem markdown, sem explicações.`;
-
-  const userMsg = `Crie uma legenda para Instagram com base em: "${briefing.substring(0,2000)}"
-Objetivo: ${goal}
-Comprimento: ${length}
-Tom de voz: ${tone}
-Público-alvo: ${audience}
-
-Retorne JSON com esta estrutura exata:
-{
-  "legenda": "Legenda completa formatada para Instagram com quebras de linha (use \\n para quebra), emojis estratégicos e estrutura de hook + conteúdo + transição para CTA",
-  "ctas": [
-    "Opção de CTA 1 — direta e específica",
-    "Opção de CTA 2 — emocional",
-    "Opção de CTA 3 — pergunta ou provocação"
-  ],
-  "hashtags": ["#hashtag1","#hashtag2","#hashtag3","#hashtag4","#hashtag5","#hashtag6","#hashtag7","#hashtag8","#hashtag9","#hashtag10"],
-  "dica": "Dica extra de estratégia para maximizar o alcance deste post"
-}
-Retorne APENAS o JSON.`;
-
-  try {
-    const data = await callClaude(systemPrompt, userMsg);
-    renderCaption(data);
-  } catch(e) {
-    showError('caption', e.message);
-  } finally {
-    showLoading('caption', false);
-    document.getElementById('caption-result').classList.add('visible');
-  }
-}
-
-function renderCaption(data) {
-  const container = document.getElementById('caption-cards');
-  container.innerHTML = '';
-
-  // Main caption card
-  if (data.legenda) {
-    const captionCard = document.createElement('div');
-    captionCard.className = 'slide-card p-5';
-    const formatted = escHtml(data.legenda).replace(/\\n/g, '\n').replace(/\n/g, '<br/>');
-    captionCard.innerHTML = `
-      <div class="flex items-center justify-between mb-3">
-        <p class="section-label mb-0">Legenda</p>
-        <button onclick="copyText(this, ${JSON.stringify(data.legenda.replace(/\\n/g,'\n'))})" class="copy-btn">📋 Copiar legenda</button>
-      </div>
-      <div class="text-gray-300 text-sm leading-relaxed whitespace-pre-line bg-[#0f0f0f] rounded-lg p-4 border border-[#2a2a2a]">${formatted}</div>
-    `;
-    container.appendChild(captionCard);
-  }
-
-  // CTAs
-  if (data.ctas?.length) {
-    const ctaCard = document.createElement('div');
-    ctaCard.className = 'slide-card p-5';
-    ctaCard.innerHTML = `
-      <p class="section-label mb-3">Opções de CTA</p>
-      ${data.ctas.map((cta, i) => `
-        <div class="cta-option">
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <span class="text-purple-400 text-xs font-bold mr-2">Opção ${i+1}</span>
-              <span class="text-gray-300 text-sm">${escHtml(cta)}</span>
-            </div>
-            <button onclick="copyText(this, ${JSON.stringify(cta)})" class="copy-btn flex-shrink-0">📋</button>
-          </div>
+  const det = document.getElementById('p-details');
+  const palette=[[bg,d.nome_cor_fundo,'Fundo'],[textC,d.nome_cor_texto,'Texto'],[accent,d.nome_cor_destaque,'Destaque']];
+  det.innerHTML = `
+    <p class="stag mb-3">Paleta &amp; Layout</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+      ${palette.map(([h,n,u])=>`
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:30px;height:30px;border-radius:7px;background:${esc(h)};border:1px solid #2a2a2a;flex-shrink:0;"></div>
+          <div><p style="font-size:12px;font-weight:600;color:#e5e5e5;">${esc(h)}</p><p style="font-size:11px;color:#6b7280;">${esc(n||u)}</p></div>
         </div>
       `).join('')}
-    `;
-    container.appendChild(ctaCard);
-  }
+    </div>
+    <p class="stag mb-2">Instrução de Layout</p>
+    <p style="font-size:13px;color:#9ca3af;line-height:1.6;">${esc(d.layout||'')}</p>
+  `;
+}
 
-  // Hashtags
-  if (data.hashtags?.length) {
-    const hashCard = document.createElement('div');
-    hashCard.className = 'slide-card p-5';
-    const hashText = data.hashtags.join(' ');
-    hashCard.innerHTML = `
-      <div class="flex items-center justify-between mb-3">
-        <p class="section-label mb-0">Hashtags (${data.hashtags.length})</p>
-        <button onclick="copyText(this, ${JSON.stringify(hashText)})" class="copy-btn">📋 Copiar</button>
+/* ════════════════════════════════════════════════════
+   STORY GENERATE
+════════════════════════════════════════════════════ */
+async function genStory() {
+  const brief=document.getElementById('s-brief').value.trim();
+  if(!brief){toast('⚠️','Preencha o briefing');return;}
+  const type=document.getElementById('s-type').value;
+  startL('story');
+  try {
+    const sys=`Você é um criador de stories virais para Instagram. Conteúdo sobre adição digital, uso de telas e neurociência do comportamento. Tom: direto, humano, às vezes incômodo. Retorne APENAS JSON válido, sem markdown, sem explicações.`;
+    const usr=`Crie um story do tipo "${type}" sobre: "${brief}"
+Tom: ${gTone()} | Público: ${gAud()}
+
+JSON exato:
+{
+  "texto_principal": "Texto curto e impactante (máx 3 linhas)",
+  "texto_secundario": "Texto de apoio 1 linha ou null",
+  "cor_fundo_inicio": "#hexcode",
+  "cor_fundo_fim": "#hexcode",
+  "enquete": ${type==='enquete'?'{"pergunta":"texto","opcao_a":"A","opcao_b":"B"}':'null'},
+  "musica_mood": "Sugestão de música e mood",
+  "instrucao_visual": "O que mostrar no fundo",
+  "cta_story": "CTA curto ou null"
+}
+APENAS JSON.`;
+    const data=await callAPI(sys,usr);
+    CR.story=data;
+    renderStory(data);
+    showOut('story');
+  } catch(e){showErr('story',e.message);}
+  finally{stopL('story');}
+}
+
+function renderStory(d) {
+  const bg1 = /^#[0-9a-f]{6}$/i.test(d.cor_fundo_inicio||'') ? d.cor_fundo_inicio : '#1a0533';
+  const bg2 = /^#[0-9a-f]{6}$/i.test(d.cor_fundo_fim||'')    ? d.cor_fundo_fim    : '#0a0a1a';
+
+  const wrap = document.getElementById('s-preview-wrap');
+  wrap.innerHTML = '';
+
+  const frame = document.createElement('div');
+  frame.id = 's-preview';
+  frame.style.cssText = `width:200px;aspect-ratio:9/16;background:linear-gradient(180deg,${bg1} 0%,${bg2} 100%);overflow:hidden;position:relative;display:flex;flex-direction:column;border-radius:16px;font-family:'Inter',sans-serif;flex-shrink:0;box-shadow:0 20px 50px rgba(0,0,0,.7);`;
+  frame.innerHTML = `
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ORANGE},${TAN});"></div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px;">
+      <div style="display:flex;justify-content:center;">
+        <div style="display:flex;gap:3px;">
+          <div style="height:3px;width:65px;background:rgba(255,255,255,.5);border-radius:2px;"></div>
+          <div style="height:3px;width:65px;background:rgba(255,255,255,.18);border-radius:2px;"></div>
+        </div>
       </div>
-      <div>${data.hashtags.map(h => `<span class="hashtag-pill">${escHtml(h)}</span>`).join('')}</div>
-    `;
-    container.appendChild(hashCard);
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:10px;padding:12px 0;">
+        <p style="font-family:'Playfair Display',serif;font-size:16px;font-weight:900;color:${CREAM};line-height:1.3;">${esc(d.texto_principal||'')}</p>
+        ${d.texto_secundario?`<p style="font-size:11px;color:rgba(245,239,228,0.55);">${esc(d.texto_secundario)}</p>`:''}
+        ${d.enquete?`
+          <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:8px;width:100%;margin-top:6px;">
+            <p style="font-size:11px;font-weight:700;color:${CREAM};margin-bottom:6px;">${esc(d.enquete.pergunta||'')}</p>
+            <div style="display:flex;gap:4px;">
+              <div style="flex:1;background:rgba(196,98,45,.75);border-radius:5px;padding:4px;font-size:10px;color:white;font-weight:600;text-align:center;">${esc(d.enquete.opcao_a||'')}</div>
+              <div style="flex:1;background:rgba(255,255,255,.18);border-radius:5px;padding:4px;font-size:10px;color:white;font-weight:600;text-align:center;">${esc(d.enquete.opcao_b||'')}</div>
+            </div>
+          </div>
+        `:''}
+      </div>
+      ${d.cta_story?`<p style="font-size:10px;font-weight:700;color:rgba(201,168,124,.7);text-align:center;letter-spacing:1.5px;text-transform:uppercase;">${esc(d.cta_story)}</p>`:'<div></div>'}
+    </div>
+  `;
+  wrap.appendChild(frame);
+
+  const det = document.getElementById('s-details');
+  det.innerHTML = `
+    <div class="card p-4 space-y-3">
+      <p class="stag mb-3">Detalhes do Story</p>
+      <div>
+        <p style="font-size:11px;color:#6b7280;margin-bottom:4px;">Gradiente</p>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:22px;height:22px;border-radius:5px;background:${esc(bg1)};border:1px solid #2a2a2a;"></div>
+          <div style="width:22px;height:22px;border-radius:5px;background:${esc(bg2)};border:1px solid #2a2a2a;"></div>
+          <span style="font-size:12px;color:#9ca3af;">${esc(bg1)} → ${esc(bg2)}</span>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:11px;color:#6b7280;margin-bottom:3px;">🎵 Música / Mood</p>
+        <p style="font-size:13px;color:#e5e5e5;">${esc(d.musica_mood||'')}</p>
+      </div>
+      <div>
+        <p style="font-size:11px;color:#6b7280;margin-bottom:3px;">🎬 Instrução visual</p>
+        <p style="font-size:13px;color:#e5e5e5;line-height:1.5;">${esc(d.instrucao_visual||'')}</p>
+      </div>
+    </div>
+  `;
+}
+
+/* ════════════════════════════════════════════════════
+   CAPTION GENERATE
+════════════════════════════════════════════════════ */
+async function genCaption() {
+  const brief=document.getElementById('leg-brief').value.trim();
+  if(!brief){toast('⚠️','Preencha o briefing');return;}
+  const goal=document.getElementById('leg-goal').value;
+  const len=document.getElementById('leg-len').value;
+  startL('caption');
+  try {
+    const sys=`Você é um copywriter especializado em legendas de Instagram para criadores de conteúdo educativo no Brasil. Escreva legendas que param o scroll, criam conexão e geram ação. Retorne APENAS JSON válido, sem markdown, sem explicações.`;
+    const usr=`Crie uma legenda com base em:\n"${brief.slice(0,2000)}"
+Objetivo: ${goal} | Comprimento: ${len}
+Tom: ${gTone()} | Público: ${gAud()}
+
+JSON exato:
+{
+  "legenda": "Legenda completa (use \\n para quebras, emojis estratégicos, hook forte na 1ª linha)",
+  "ctas": ["CTA direto","CTA emocional","CTA pergunta"],
+  "hashtags": ["#hashtag1","#hashtag2","#hashtag3","#hashtag4","#hashtag5","#hashtag6","#hashtag7","#hashtag8","#hashtag9","#hashtag10"],
+  "hook_score": "nota de 1-10 com justificativa em 1 frase",
+  "dica": "1 dica estratégica para maximizar o alcance"
+}
+APENAS JSON.`;
+    const data=await callAPI(sys,usr);
+    CR.caption=data;
+    renderCaption(data);
+    showOut('caption');
+  } catch(e){showErr('caption',e.message);}
+  finally{stopL('caption');}
+}
+
+function renderCaption(d) {
+  const cards=document.getElementById('leg-cards'); cards.innerHTML='';
+
+  if (d.legenda) {
+    const formatted = esc(d.legenda).replace(/\\n/g,'\n').replace(/\n/g,'<br>');
+    const c=document.createElement('div'); c.className='card p-5';
+    c.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <span class="stag">Legenda</span>
+        ${d.hook_score?`<span style="font-size:11px;background:#0a1f0a;color:#4ade80;border:1px solid #14532d;border-radius:20px;padding:2px 10px;">Hook ${esc(d.hook_score.split(' ')[0]||'')}</span>`:''}
+      </div>
+      <div style="background:#0d0d0d;border:1px solid #1e1e1e;border-radius:10px;padding:16px;font-size:14px;color:#d1d5db;line-height:1.75;white-space:pre-wrap;font-family:'Inter',sans-serif;" id="leg-txt">${formatted}</div>
+      ${d.hook_score?`<p style="font-size:12px;color:#6b7280;margin-top:8px;">💡 ${esc(d.hook_score)}</p>`:''}
+    `; cards.appendChild(c);
   }
 
-  // Tip
-  if (data.dica) {
-    const tipCard = document.createElement('div');
-    tipCard.className = 'slide-card p-4';
-    tipCard.style.borderColor = '#854d0e';
-    tipCard.style.background = '#0f0a00';
-    tipCard.innerHTML = `
-      <p class="section-label mb-2" style="color:#ca8a04;">💡 Dica de estratégia</p>
-      <p class="text-yellow-200/80 text-sm">${escHtml(data.dica)}</p>
-    `;
-    container.appendChild(tipCard);
+  if (d.ctas?.length) {
+    const c=document.createElement('div'); c.className='card p-5';
+    c.innerHTML=`
+      <p class="stag mb-3">3 Opções de CTA</p>
+      ${d.ctas.map((ct,i)=>`
+        <div style="background:#0d0d0d;border:1px solid #1e1e1e;border-radius:8px;padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:10px;font-weight:700;background:#1e1b4b;color:#a78bfa;border-radius:4px;padding:2px 7px;">${i+1}</span>
+            <span style="font-size:13px;color:#e5e5e5;">${esc(ct)}</span>
+          </div>
+          <button onclick="cpText(this,${JSON.stringify(ct)})" class="btn-g" style="flex-shrink:0;padding:3px 8px;font-size:11px;">📋</button>
+        </div>
+      `).join('')}
+    `; cards.appendChild(c);
+  }
+
+  if (d.hashtags?.length) {
+    const hs=d.hashtags.join(' ');
+    const c=document.createElement('div'); c.className='card p-5';
+    c.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <span class="stag">Hashtags (${d.hashtags.length})</span>
+        <button onclick="cpText(this,${JSON.stringify(hs)})" class="btn-g" style="padding:4px 10px;">📋 Copiar</button>
+      </div>
+      <div>${d.hashtags.map(h=>`<span class="hashtag-pill">${esc(h)}</span>`).join('')}</div>
+    `; cards.appendChild(c);
+  }
+
+  if (d.dica) {
+    const c=document.createElement('div');
+    c.style.cssText='background:#0f0a00;border:1px solid #78350f;border-radius:14px;padding:14px 16px;';
+    c.innerHTML=`<p style="font-size:10px;color:#92400e;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:6px;">💡 Dica estratégica</p><p style="font-size:13px;color:#fef3c7;line-height:1.6;">${esc(d.dica)}</p>`;
+    cards.appendChild(c);
   }
 }
 
-function copyText(btn, text) {
-  navigator.clipboard.writeText(text).then(() => {
-    const orig = btn.textContent;
-    btn.textContent = '✅';
-    setTimeout(() => btn.textContent = orig, 1500);
-    showToast('📋', 'Copiado!');
+function copyCaption() {
+  const d=CR.caption; if(!d?.legenda){toast('⚠️','Nenhuma legenda gerada');return;}
+  navigator.clipboard.writeText(d.legenda.replace(/\\n/g,'\n')).then(()=>toast('📋','Legenda copiada!'));
+}
+
+/* ── DOWNLOAD ── */
+async function dlEl(elId, fname) {
+  const el=document.getElementById(elId);
+  if (!el){toast('⚠️','Elemento não encontrado');return;}
+  try {
+    const canvas=await html2canvas(el,{scale:2.5,useCORS:true,allowTaint:true,backgroundColor:null,logging:false});
+    const a=document.createElement('a');
+    a.download=`${fname}-${Date.now()}.png`; a.href=canvas.toDataURL('image/png'); a.click();
+    toast('✅',`${fname}.png baixado!`);
+  } catch(e){toast('❌','Erro ao gerar imagem');}
+}
+
+/* ── COPY ── */
+function cpText(btn,text) {
+  navigator.clipboard.writeText(text).then(()=>{const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,1400);toast('📋','Copiado!');});
+}
+
+/* ── DISCARD ── */
+function discardResult(outId, tab) {
+  document.getElementById(outId).classList.add('hidden');
+  CR[tab]=null; toast('🗑️','Resultado descartado');
+}
+
+/* ── SEND TO CAPTION ── */
+function sendToCaption(src) {
+  const d=CR[src]; if(!d){toast('⚠️','Nenhum resultado gerado');return;}
+  let txt='';
+  if(src==='carousel') txt=(d.titulo?d.titulo+'\n\n':'')+(d.slides||[]).map(s=>`${s.numero||''} ${s.headline||''}\n${s.corpo||''}${s.cta?'\n→ '+s.cta:''}`).join('\n\n');
+  else if(src==='post') txt=`${d.texto_principal||''}\n${d.subtexto||''}\n\nLayout: ${d.layout||''}`;
+  else if(src==='story') txt=`${d.texto_principal||''}\n${d.texto_secundario||''}\n\nVisual: ${d.instrucao_visual||''}\nMúsica: ${d.musica_mood||''}`;
+  document.getElementById('leg-brief').value=txt.slice(0,2000);
+  document.querySelectorAll('.tab-btn').forEach(b=>{if(b.getAttribute('onclick')?.includes("'caption'")) switchTab('caption',b);});
+  toast('✍️','Conteúdo enviado para Legenda!');
+}
+
+/* ════════════════════════════════════════════════════
+   APPROVED / DRAWER
+════════════════════════════════════════════════════ */
+function approveResult(tab) {
+  const d=CR[tab]; if(!d){toast('⚠️','Nenhum resultado para aprovar');return;}
+  const list=JSON.parse(localStorage.getItem('approved')||'[]');
+  const brief=document.getElementById(BRIEF_IDS[tab])?.value?.slice(0,80)||'';
+  list.unshift({id:Date.now(),tab,data:JSON.parse(JSON.stringify(d)),brief,at:new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})});
+  if(list.length>50) list.splice(50);
+  localStorage.setItem('approved',JSON.stringify(list));
+  renderBadge(); toast('✅','Aprovado e salvo!');
+}
+
+function getApproved(){return JSON.parse(localStorage.getItem('approved')||'[]');}
+
+function renderBadge() {
+  const list=getApproved(); const badge=document.getElementById('abadge'); const cnt=document.getElementById('acnt');
+  if(list.length){badge.classList.add('show');cnt.textContent=list.length;cnt.style.display='flex';}
+  else{badge.classList.remove('show');cnt.style.display='none';}
+}
+
+function openDrawer(){renderDrawerList();document.getElementById('drawer').classList.add('open');document.getElementById('doverlay').classList.add('open');}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('doverlay').classList.remove('open');}
+
+const TLABELS={carousel:'🎠 Carrossel',post:'🖼️ Post',story:'📱 Story',caption:'✍️ Legenda'};
+const TBADGE ={carousel:'background:#1e1b4b;color:#a78bfa;',post:'background:#0f2a1a;color:#4ade80;',story:'background:#1a1020;color:#e879f9;',caption:'background:#1a120a;color:#fb923c;'};
+
+function renderDrawerList() {
+  const list=getApproved();
+  document.getElementById('drawer-empty').style.display=list.length?'none':'block';
+  document.getElementById('clr-btn').classList.toggle('hidden',!list.length);
+  const c=document.getElementById('drawer-list'); c.innerHTML='';
+  list.forEach((item,idx)=>{
+    const d=item.data;
+    const title=item.tab==='carousel'?(d.titulo||'Carrossel'):item.tab==='post'?(d.texto_principal||'Post'):item.tab==='story'?(d.texto_principal||'Story'):(d.legenda?.slice(0,60)||'Legenda');
+    const el=document.createElement('div'); el.className='ditem';
+    el.innerHTML=`
+      <span style="font-size:10px;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:8px;${TBADGE[item.tab]||''}">${TLABELS[item.tab]||item.tab}</span>
+      <p style="font-size:13px;color:#e5e5e5;font-weight:500;line-height:1.4;margin-bottom:3px;">${esc(title)}</p>
+      <p style="font-size:11px;color:#4b5563;">📝 ${esc(item.brief)}…</p>
+      <p style="font-size:10px;color:#374151;margin-top:4px;">${esc(item.at)}</p>
+      <div style="display:flex;gap:6px;margin-top:10px;">
+        <button onclick="cpApproved(${idx})" class="btn-g" style="flex:1;justify-content:center;font-size:11px;">📋 Copiar</button>
+        <button onclick="rmApproved(${idx})" class="btn-g btn-reject" style="padding:4px 10px;font-size:11px;">🗑️</button>
+      </div>
+    `;
+    c.appendChild(el);
   });
+}
+
+function cpApproved(idx) {
+  const item=getApproved()[idx]; if(!item) return;
+  const d=item.data; let txt='';
+  if(item.tab==='carousel') txt=(d.titulo||'')+'\n\n'+(d.slides||[]).map(s=>`${s.numero||''} ${s.headline||''}\n${s.corpo||''}${s.cta?'\n→'+s.cta:''}`).join('\n\n');
+  else if(item.tab==='post') txt=`${d.texto_principal||''}\n${d.subtexto||''}\n\nLayout: ${d.layout||''}`;
+  else if(item.tab==='story') txt=`${d.texto_principal||''}\n${d.texto_secundario||''}\n\nVisual: ${d.instrucao_visual||''}\nMúsica: ${d.musica_mood||''}`;
+  else txt=(d.legenda||'').replace(/\\n/g,'\n')+(d.ctas?.length?'\n\n'+d.ctas.join('\n'):'')+(d.hashtags?.length?'\n\n'+d.hashtags.join(' '):'');
+  navigator.clipboard.writeText(txt).then(()=>toast('📋','Copiado!'));
+}
+
+function rmApproved(idx) {
+  const list=getApproved(); list.splice(idx,1);
+  localStorage.setItem('approved',JSON.stringify(list));
+  renderBadge(); renderDrawerList();
+}
+
+function clearApproved() {
+  if(!confirm('Limpar todos os aprovados?')) return;
+  localStorage.removeItem('approved'); renderBadge(); renderDrawerList();
 }
 </script>
 </body>
