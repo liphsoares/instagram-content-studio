@@ -901,7 +901,7 @@ async function genPost(){
 Tom: ${TONE()} | Público: ${AUD()}
 ${link?'Ref: '+link:''}${file?'\n'+file.slice(0,1500):''}
 JSON (APENAS JSON, nada mais):
-{"texto_principal":"máx 15 palavras","subtexto":"1 linha","cor_fundo":"#hex","cor_texto":"#hex","cor_destaque":"#hex","nome_cor_fundo":"nome","nome_cor_texto":"nome","nome_cor_destaque":"nome","layout":"instrução de layout para designer","emoji_tema":"1 emoji"}`;
+{"texto_principal":"máx 15 palavras","subtexto":"1 linha","variante":"escuro ou claro","layout":"instrução de layout para designer","emoji_tema":"1 emoji"}`;
     const data=await api(sys,usr);
     R.p=data;renderPost(data);showResult('p');
   }catch(err){showErr('p',err.message);}
@@ -909,26 +909,28 @@ JSON (APENAS JSON, nada mais):
 }
 
 function renderPost(d){
-  const bg=validHex(d.cor_fundo)?d.cor_fundo:CH;
-  const tc=validHex(d.cor_texto)?d.cor_texto:CR;
-  const ac=validHex(d.cor_destaque)?d.cor_destaque:OR;
+  // Paleta de marca hardcoded — a IA só escolhe variante escuro/claro
+  const isLight=(d.variante||'').toLowerCase()==='claro';
+  const bg=isLight?'#F0E5D8':CH;
+  const tc=isLight?DK:CR;
+  const ac=OR;
   const pw=document.getElementById('p-pw');pw.innerHTML='';
   const f=document.createElement('div');f.id='p-preview';
   f.style.cssText=`width:100%;aspect-ratio:1;background:${bg};overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px;border-radius:12px;font-family:'Inter',sans-serif;box-shadow:0 20px 60px rgba(0,0,0,.7);`;
   f.innerHTML=`
-    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ac},${ac}70);"></div>
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ac},${TN});"></div>
     <p style="font-size:38px;margin-bottom:16px;">${d.emoji_tema||'💡'}</p>
     <h2 style="font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,32px);font-weight:900;line-height:1.15;color:${tc};letter-spacing:-.5px;max-width:80%;margin-bottom:12px;">${e(d.texto_principal||'')}</h2>
     <div style="width:28px;height:2px;background:${ac};margin:0 auto 12px;"></div>
     <p style="font-size:13px;color:${tc};opacity:.55;max-width:65%;">${e(d.subtexto||'')}</p>
-    <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ac}70,${ac});"></div>`;
+    <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${TN},${ac});"></div>`;
   pw.appendChild(f);
 
   const det=document.getElementById('p-det');
   det.innerHTML=`
     <p class="micro" style="margin-bottom:12px;">Paleta &amp; Layout</p>
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
-      ${[[bg,d.nome_cor_fundo,'Fundo'],[tc,d.nome_cor_texto,'Texto'],[ac,d.nome_cor_destaque,'Destaque']].map(([h,n,u])=>`
+      ${[[bg,isLight?'Creme':'Espresso','Fundo'],[tc,isLight?'Marrom escuro':'Creme','Texto'],[ac,'Terracota','Destaque']].map(([h,n,u])=>`
         <div style="display:flex;align-items:center;gap:8px;">
           <div style="width:28px;height:28px;border-radius:7px;background:${e(h)};border:1px solid rgba(255,255,255,.1);flex-shrink:0;"></div>
           <div><p style="font-size:12px;font-weight:700;">${e(h)}</p><p style="font-size:11px;color:var(--mut);">${e(n||u)}</p></div>
@@ -949,7 +951,7 @@ async function genStory(){
     const sys=`Você cria stories virais na voz de Filipe Teixeira: palestrante de adição digital e neurociência. Tom: direto, humano, às vezes incômodo, sempre autoral. Escreva como se o Filipe tivesse digitado no celular, sem cara de IA. NUNCA use travessões (— ou –). NUNCA use expressões genéricas ou pomposas. Retorne APENAS JSON válido.`;
     const usr=`Story tipo "${type}" sobre: "${brief}" | Tom: ${TONE()} | Público: ${AUD()}
 JSON (APENAS JSON):
-{"texto_principal":"máx 3 linhas impactantes","texto_secundario":"1 linha ou null","cor_fundo_inicio":"#hex","cor_fundo_fim":"#hex","enquete":${type==='enquete'?'{"pergunta":"texto","opcao_a":"Opção A","opcao_b":"Opção B"}':'null'},"musica_mood":"sugestão de música e mood","instrucao_visual":"o que mostrar no fundo","cta_story":"texto curto ou null"}`;
+{"texto_principal":"máx 3 linhas impactantes","texto_secundario":"1 linha ou null","variante":"escuro ou claro","enquete":${type==='enquete'?'{"pergunta":"texto","opcao_a":"Opção A","opcao_b":"Opção B"}':'null'},"musica_mood":"sugestão de música e mood","instrucao_visual":"o que mostrar no fundo","cta_story":"texto curto ou null"}`;
     const data=await api(sys,usr);
     R.s=data;renderStory(data);showResult('s');
   }catch(err){showErr('s',err.message);}
@@ -957,31 +959,41 @@ JSON (APENAS JSON):
 }
 
 function renderStory(d){
-  const b1=validHex(d.cor_fundo_inicio)?d.cor_fundo_inicio:'#1a0533';
-  const b2=validHex(d.cor_fundo_fim)?d.cor_fundo_fim:'#0a0a1a';
+  // Paleta de marca: tons terrosos — nunca deixar a IA inventar cores
+  const isLight=(d.variante||'').toLowerCase()==='claro';
+  const b1=isLight?'#F0E5D8':'#1A0E08';
+  const b2=isLight?'#E8D9C8':'#2C1A10';
+  const textColor=isLight?DK:CR;
+  const subColor=isLight?'rgba(44,26,16,.5)':'rgba(242,237,232,.5)';
+  const ctaColor=isLight?'rgba(196,98,45,.7)':'rgba(201,168,124,.7)';
+  const barOpacity=isLight?'rgba(44,26,16,.2)':'rgba(255,255,255,.5)';
+  const barFaded=isLight?'rgba(44,26,16,.08)':'rgba(255,255,255,.15)';
+  const enqueteBtnB=isLight?'rgba(196,98,45,.85)':'rgba(196,98,45,.75)';
+  const enqueteBtnA=isLight?'rgba(44,26,16,.12)':'rgba(255,255,255,.15)';
+
   const pw=document.getElementById('s-pw');pw.innerHTML='';
   const f=document.createElement('div');f.id='s-preview';
   f.style.cssText=`width:215px;aspect-ratio:9/16;background:linear-gradient(180deg,${b1},${b2});overflow:hidden;position:relative;display:flex;flex-direction:column;border-radius:18px;font-family:'Inter',sans-serif;flex-shrink:0;box-shadow:0 20px 50px rgba(0,0,0,.75);`;
   f.innerHTML=`
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${OR},${TN});"></div>
     <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:18px 16px;">
-      <div style="display:flex;justify-content:center;"><div style="display:flex;gap:3px;"><div style="height:3px;width:72px;background:rgba(255,255,255,.5);border-radius:2px;"></div><div style="height:3px;width:72px;background:rgba(255,255,255,.15);border-radius:2px;"></div></div></div>
+      <div style="display:flex;justify-content:center;"><div style="display:flex;gap:3px;"><div style="height:3px;width:72px;background:${barOpacity};border-radius:2px;"></div><div style="height:3px;width:72px;background:${barFaded};border-radius:2px;"></div></div></div>
       <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:10px;padding:12px 0;">
-        <p style="font-family:'Playfair Display',serif;font-size:17px;font-weight:900;color:${CR};line-height:1.3;">${e(d.texto_principal||'')}</p>
-        ${d.texto_secundario?`<p style="font-size:11px;color:rgba(245,239,228,.5);">${e(d.texto_secundario)}</p>`:''}
-        ${d.enquete?`<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:8px;width:100%;margin-top:6px;"><p style="font-size:11px;font-weight:700;color:${CR};margin-bottom:6px;">${e(d.enquete.pergunta||'')}</p><div style="display:flex;gap:4px;"><div style="flex:1;background:rgba(196,98,45,.75);border-radius:5px;padding:4px;font-size:10px;color:white;font-weight:700;text-align:center;">${e(d.enquete.opcao_a||'')}</div><div style="flex:1;background:rgba(255,255,255,.15);border-radius:5px;padding:4px;font-size:10px;color:white;font-weight:700;text-align:center;">${e(d.enquete.opcao_b||'')}</div></div></div>`:''}
+        <p style="font-family:'Playfair Display',serif;font-size:17px;font-weight:900;color:${textColor};line-height:1.3;">${e(d.texto_principal||'')}</p>
+        ${d.texto_secundario?`<p style="font-size:11px;color:${subColor};">${e(d.texto_secundario)}</p>`:''}
+        ${d.enquete?`<div style="background:${enqueteBtnA};border-radius:10px;padding:8px;width:100%;margin-top:6px;"><p style="font-size:11px;font-weight:700;color:${textColor};margin-bottom:6px;">${e(d.enquete.pergunta||'')}</p><div style="display:flex;gap:4px;"><div style="flex:1;background:${enqueteBtnB};border-radius:5px;padding:4px;font-size:10px;color:white;font-weight:700;text-align:center;">${e(d.enquete.opcao_a||'')}</div><div style="flex:1;background:${enqueteBtnA};border-radius:5px;padding:4px;font-size:10px;color:${textColor};font-weight:700;text-align:center;">${e(d.enquete.opcao_b||'')}</div></div></div>`:''}
       </div>
-      ${d.cta_story?`<p style="font-size:10px;font-weight:700;color:rgba(201,168,124,.7);text-align:center;letter-spacing:1.5px;text-transform:uppercase;">${e(d.cta_story)}</p>`:'<div></div>'}
+      ${d.cta_story?`<p style="font-size:10px;font-weight:700;color:${ctaColor};text-align:center;letter-spacing:1.5px;text-transform:uppercase;">${e(d.cta_story)}</p>`:'<div></div>'}
     </div>`;
   pw.appendChild(f);
 
   document.getElementById('s-det').innerHTML=`
     <div class="g" style="padding:16px;display:flex;flex-direction:column;gap:14px;">
-      <div><p class="micro" style="margin-bottom:6px;">Gradiente</p>
+      <div><p class="micro" style="margin-bottom:6px;">Variante</p>
         <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:20px;height:20px;border-radius:4px;background:${e(b1)};border:1px solid rgba(255,255,255,.1);"></div>
-          <div style="width:20px;height:20px;border-radius:4px;background:${e(b2)};border:1px solid rgba(255,255,255,.1);"></div>
-          <span style="font-size:12px;color:var(--mut);">${e(b1)} → ${e(b2)}</span>
+          <div style="width:20px;height:20px;border-radius:4px;background:${b1};border:1px solid rgba(255,255,255,.1);"></div>
+          <div style="width:20px;height:20px;border-radius:4px;background:${b2};border:1px solid rgba(255,255,255,.1);"></div>
+          <span style="font-size:12px;color:var(--mut);">${isLight?'Claro (creme)':'Escuro (espresso)'} · ${b1} → ${b2}</span>
         </div>
       </div>
       <div><p class="micro" style="margin-bottom:5px;">🎵 Música / Mood</p><p style="font-size:13px;color:var(--ink);">${e(d.musica_mood||'')}</p></div>
