@@ -3,160 +3,234 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Instagram Content Studio</title>
+  <title>Content Studio</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    :root {
-      --cream: #F5EFE4;
-      --beige: #E8DCC8;
-      --tan:   #C9A87C;
-      --brown: #7C5C3E;
-      --dark:  #2C1F14;
-      --char:  #1A1209;
-      --orange:#C4622D;
-      --muted: #9C8370;
-      --purple:#8B5CF6;
-      --purple-l:#A78BFA;
-      --bg:    #0a0a0a;
-      --surf:  #161616;
-      --bord:  #232323;
-    }
-    *, *::before, *::after { box-sizing: border-box; }
-    body { background: var(--bg); color: #e5e5e5; font-family: 'Inter', sans-serif; min-height: 100vh; }
+  :root {
+    --bg:    #0C0C0C;
+    --s1:    rgba(255,255,255,.05);
+    --s2:    rgba(255,255,255,.08);
+    --bd:    rgba(255,255,255,.08);
+    --bd2:   rgba(255,255,255,.16);
+    --ink:   #F2EDE8;
+    --mut:   rgba(242,237,232,.45);
+    --dim:   rgba(242,237,232,.22);
+    --acc:   #D4622A;
+    --acc2:  #E8845A;
+    --ok:    #4ade80;
+    --err:   #f87171;
+    --blue:  #60a5fa;
+    --r:     12px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--bg);color:var(--ink);min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(ellipse 800px 500px at 65% -60px,rgba(212,98,42,.14),transparent 65%),
+      radial-gradient(ellipse 500px 400px at 5% 85%,rgba(212,98,42,.07),transparent 70%);
+  }
+  #app{position:relative;z-index:1;}
 
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: #111; }
-    ::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 3px; }
+  /* scrollbar */
+  ::-webkit-scrollbar{width:4px;height:4px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(212,98,42,.3);border-radius:2px;}
 
-    textarea, input[type=text], input[type=url], input[type=password], select {
-      background: #111 !important; color: #e5e5e5 !important;
-      border: 1px solid var(--bord) !important; outline: none !important;
-      transition: border-color .15s, box-shadow .15s; width: 100%;
-      font-family: 'Inter', sans-serif;
-    }
-    textarea:focus, input:focus, select:focus {
-      border-color: var(--purple) !important;
-      box-shadow: 0 0 0 3px rgba(139,92,246,.1) !important;
-    }
-    select option { background: #111; color: #e5e5e5; }
+  /* inputs */
+  input,textarea,select{
+    font-family:'Inter',system-ui,sans-serif;font-size:13px;
+    background:rgba(255,255,255,.04)!important;color:var(--ink)!important;
+    border:1px solid var(--bd)!important;border-radius:var(--r)!important;
+    outline:none!important;transition:border-color .15s,background .15s;
+    width:100%;
+  }
+  input:focus,textarea:focus,select:focus{
+    border-color:rgba(212,98,42,.55)!important;
+    background:rgba(255,255,255,.06)!important;
+  }
+  input::placeholder,textarea::placeholder{color:var(--dim);}
+  select option{background:#1a1a1a;color:var(--ink);}
+  textarea{resize:vertical;}
+  input[type=file]{padding:7px 10px;cursor:pointer;}
+  input[type=file]::-webkit-file-upload-button{
+    background:rgba(255,255,255,.08);color:var(--mut);border:none;
+    padding:3px 10px;border-radius:6px;cursor:pointer;font-size:11px;margin-right:8px;
+  }
 
-    .tab-btn {
-      border: none; border-bottom: 2px solid transparent; background: none;
-      padding: 12px 20px; font-size: 13px; font-weight: 500; color: #6b7280;
-      white-space: nowrap; cursor: pointer; transition: all .2s; font-family: 'Inter', sans-serif;
-    }
-    .tab-btn:hover { color: #d1d5db; }
-    .tab-btn.active { border-bottom-color: var(--purple); color: var(--purple); }
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; }
+  /* glass cards */
+  .g{background:var(--s1);border:1px solid var(--bd);border-radius:16px;}
+  .g2{background:var(--s2);border:1px solid var(--bd2);}
 
-    .card { background: var(--surf); border: 1px solid var(--bord); border-radius: 14px; }
+  /* buttons */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    font-family:'Inter',system-ui,sans-serif;font-weight:600;cursor:pointer;
+    border:none;border-radius:10px;transition:opacity .15s,background .15s,transform .1s;
+    white-space:nowrap;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-acc{background:var(--acc);color:#fff;padding:12px 20px;font-size:14px;}
+  .btn-acc:hover{background:var(--acc2);}
+  .btn-acc:disabled{opacity:.35;cursor:not-allowed;}
+  .btn-sm{padding:5px 11px;font-size:12px;border-radius:8px;background:rgba(255,255,255,.05);color:var(--mut);border:1px solid var(--bd);}
+  .btn-sm:hover{background:rgba(255,255,255,.09);color:var(--ink);border-color:var(--bd2);}
+  .btn-ok {background:rgba(74,222,128,.08); color:var(--ok); border:1px solid rgba(74,222,128,.2);}
+  .btn-ok:hover{background:rgba(74,222,128,.15);}
+  .btn-err{background:rgba(248,113,113,.07);color:var(--err);border:1px solid rgba(248,113,113,.2);}
+  .btn-err:hover{background:rgba(248,113,113,.14);}
+  .btn-blu{background:rgba(96,165,250,.07); color:var(--blue);border:1px solid rgba(96,165,250,.2);}
+  .btn-blu:hover{background:rgba(96,165,250,.14);}
+  .btn-ora{background:rgba(212,98,42,.1); color:var(--acc2);border:1px solid rgba(212,98,42,.25);}
+  .btn-ora:hover{background:rgba(212,98,42,.18);}
 
-    .btn-p { background: var(--purple); color: #fff; border: none; cursor: pointer; border-radius: 10px; font-weight: 600; font-family: 'Inter', sans-serif; transition: background .15s, transform .1s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-    .btn-p:hover { background: var(--purple-l); }
-    .btn-p:active { transform: scale(.98); }
-    .btn-p:disabled { background: #3d2f6e; color: #7c6aaa; cursor: not-allowed; }
+  /* type */
+  .label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:6px;}
+  .micro{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);}
 
-    .btn-g { background: #1e1e1e; color: #9ca3af; border: 1px solid var(--bord); cursor: pointer; border-radius: 8px; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; font-family: 'Inter', sans-serif; transition: all .15s; }
-    .btn-g:hover { background: #2a2a2a; color: #e5e5e5; border-color: #3a3a3a; }
+  /* chips */
+  .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{
+    background:rgba(212,98,42,.08);border:1px solid rgba(212,98,42,.18);
+    color:var(--acc2);border-radius:999px;padding:5px 13px;font-size:12px;
+    font-weight:500;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;
+    transition:all .15s;flex-shrink:0;
+  }
+  .chip:hover{background:rgba(212,98,42,.2);border-color:rgba(212,98,42,.45);color:var(--ink);}
 
-    .btn-approve { background: rgba(34,197,94,.1); color: #4ade80; border: 1px solid rgba(34,197,94,.25); }
-    .btn-approve:hover { background: rgba(34,197,94,.2); }
-    .btn-reject  { background: rgba(239,68,68,.08); color: #f87171; border: 1px solid rgba(239,68,68,.2); }
-    .btn-reject:hover { background: rgba(239,68,68,.18); }
-    .btn-dl      { background: rgba(59,130,246,.08); color: #60a5fa; border: 1px solid rgba(59,130,246,.2); }
-    .btn-dl:hover{ background: rgba(59,130,246,.18); }
-    .btn-leg     { background: rgba(139,92,246,.1); color: var(--purple-l); border: 1px solid rgba(139,92,246,.25); }
-    .btn-leg:hover{ background: rgba(139,92,246,.2); }
+  /* tabs */
+  .tabs{display:flex;gap:2px;padding:4px;background:var(--s1);border:1px solid var(--bd);border-radius:12px;width:fit-content;}
+  .tab{
+    border:none;background:transparent;cursor:pointer;
+    font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:600;
+    color:var(--mut);padding:8px 18px;border-radius:9px;
+    transition:all .18s;display:flex;align-items:center;gap:7px;white-space:nowrap;
+  }
+  .tab:hover{color:var(--ink);background:rgba(255,255,255,.04);}
+  .tab.on{background:rgba(212,98,42,.14);color:var(--acc2);border:1px solid rgba(212,98,42,.25);}
+  .pane{display:none;}.pane.on{display:block;}
 
-    label { color: #9ca3af; font-size: 13px; font-weight: 500; display: block; margin-bottom: 5px; }
-    .stag { color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; }
+  /* spinner */
+  .spin{border:2px solid rgba(255,255,255,.08);border-top-color:var(--acc);border-radius:50%;width:28px;height:28px;animation:rot .7s linear infinite;}
+  @keyframes rot{to{transform:rotate(360deg);}}
 
-    .spinner { border: 2.5px solid #2a2a2a; border-top-color: var(--purple); border-radius: 50%; width: 28px; height: 28px; animation: spin .75s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+  /* action row */
+  .acts{display:flex;gap:6px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--bd);margin-bottom:4px;}
 
-    .prompt-chip {
-      background: #1a1a2e; border: 1px solid #312e6e; color: var(--purple-l);
-      border-radius: 20px; padding: 5px 12px; font-size: 12px; cursor: pointer;
-      transition: all .15s; white-space: nowrap; display: inline-block; font-family:'Inter',sans-serif;
-    }
-    .prompt-chip:hover { background: #2a2860; border-color: var(--purple); color: #c4b5fd; }
+  /* empty state */
+  .empty{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;gap:20px;padding:48px 32px;min-height:420px;
+  }
+  .orb{
+    width:68px;height:68px;border-radius:50%;
+    background:radial-gradient(circle at center,rgba(212,98,42,.2),transparent 70%);
+    border:1px solid rgba(212,98,42,.2);display:flex;align-items:center;justify-content:center;font-size:26px;
+  }
 
-    .hashtag-pill { background: #1e1b4b; color: var(--purple-l); border: 1px solid #3730a3; padding: 3px 10px; border-radius: 20px; font-size: 12px; display: inline-block; margin: 2px; }
+  /* error box */
+  .errbox{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);border-radius:12px;padding:14px 16px;color:#fca5a5;font-size:13px;line-height:1.6;}
+  .errbox strong{display:block;margin-bottom:4px;}
 
-    .action-bar { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid #1e1e1e; margin-top: 6px; }
-    .error-box { background: #1c0a0a; border: 1px solid #7f1d1d; border-radius: 10px; padding: 14px; color: #fca5a5; font-size: 13px; }
+  /* carousel viewer */
+  .cvp{overflow:hidden;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.75);}
+  .cvt{display:flex;transition:transform .5s cubic-bezier(.77,0,.18,1);}
+  .cvnav{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 0 4px;}
+  .cvarr{
+    background:rgba(255,255,255,.06);border:1px solid var(--bd);color:var(--ink);
+    width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:19px;
+    display:flex;align-items:center;justify-content:center;transition:all .15s;
+  }
+  .cvarr:hover{background:rgba(212,98,42,.25);border-color:rgba(212,98,42,.4);}
+  .cvarr:disabled{opacity:.15;cursor:default;}
+  .cvdots{display:flex;gap:7px;}
+  .cvdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.18);cursor:pointer;border:none;transition:all .25s;}
+  .cvdot.on{background:var(--acc2);transform:scale(1.5);}
+  .cvcnt{font-size:11px;color:var(--dim);letter-spacing:2px;min-width:34px;text-align:center;}
+  .cvdlbar{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
+  .cvdlbtn{background:rgba(212,98,42,.06);border:1px solid rgba(212,98,42,.15);color:var(--mut);padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+  .cvdlbtn:hover{background:rgba(212,98,42,.18);color:var(--ink);border-color:rgba(212,98,42,.4);}
+  .cvdlall{background:var(--acc);border:none;color:#fff;padding:10px 20px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .2s;width:100%;max-width:300px;display:block;margin:8px auto 0;}
+  .cvdlall:hover{opacity:.85;}
+  .cvdlall:disabled{opacity:.35;cursor:wait;}
 
-    /* ── CAROUSEL VIEWER ── */
-    .cv-wrap { position: relative; }
-    .cv-viewport { overflow: hidden; border-radius: 12px; box-shadow: 0 24px 70px rgba(0,0,0,.75); }
-    .cv-track { display: flex; transition: transform .5s cubic-bezier(.77,0,.18,1); }
-    .cv-nav { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 0 6px; }
-    .cv-arrow { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: #e5e5e5; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
-    .cv-arrow:hover { background: rgba(196,98,45,.3); border-color: var(--orange); }
-    .cv-arrow:disabled { opacity: .2; cursor: default; }
-    .cv-dots { display: flex; gap: 7px; }
-    .cv-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.2); cursor: pointer; border: none; transition: all .25s; }
-    .cv-dot.active { background: var(--tan); transform: scale(1.5); }
-    .cv-counter { font-size: 11px; color: #4b5563; letter-spacing: 2px; min-width: 36px; text-align: center; }
+  /* caption */
+  .cap-txt{background:rgba(0,0,0,.35);border:1px solid var(--bd);border-radius:10px;padding:16px;font-size:14px;color:rgba(242,237,232,.8);line-height:1.8;white-space:pre-wrap;}
+  .htag{background:rgba(212,98,42,.07);color:var(--acc2);border:1px solid rgba(212,98,42,.18);padding:3px 10px;border-radius:999px;font-size:12px;display:inline-block;margin:2px;}
+  .tipbox{background:rgba(212,98,42,.07);border:1px solid rgba(212,98,42,.2);border-radius:12px;padding:14px 16px;}
 
-    /* slide download bar */
-    .cv-dlbar { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
-    .cv-dlbtn { background: rgba(201,168,124,.08); border: 1px solid rgba(201,168,124,.2); color: var(--tan); padding: 6px 14px; border-radius: 4px; font-size: 11px; letter-spacing: .5px; cursor: pointer; font-family:'Inter',sans-serif; transition: all .15s; white-space: nowrap; }
-    .cv-dlbtn:hover { background: rgba(196,98,45,.2); border-color: var(--orange); color: var(--cream); }
-    .cv-dlall { background: var(--orange); border: none; color: #fff; padding: 10px 24px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; font-family:'Inter',sans-serif; transition: opacity .2s; width: 100%; max-width: 320px; margin-top: 6px; }
-    .cv-dlall:hover { opacity: .85; }
-    .cv-dlall:disabled { opacity: .4; cursor: wait; }
+  /* toast */
+  .toast{
+    position:fixed;bottom:24px;right:24px;z-index:9999;
+    background:rgba(18,18,18,.97);border:1px solid var(--bd2);border-radius:10px;
+    padding:10px 16px;font-size:13px;color:var(--ink);
+    box-shadow:0 8px 32px rgba(0,0,0,.6);
+    display:flex;align-items:center;gap:8px;
+    opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none;
+  }
+  .toast.on{opacity:1;transform:translateY(0);}
 
-    /* ── POST PREVIEW ── */
-    .post-frame { width: 100%; aspect-ratio: 1; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  /* approved badge */
+  .abadge{
+    position:fixed;bottom:72px;right:24px;z-index:1000;
+    background:var(--acc);color:#fff;border:none;cursor:pointer;
+    width:48px;height:48px;border-radius:50%;
+    display:none;align-items:center;justify-content:center;
+    box-shadow:0 4px 20px rgba(212,98,42,.45);font-size:18px;
+    transition:transform .2s;
+  }
+  .abadge:hover{transform:scale(1.08);}
+  .abadge.on{display:flex;}
+  .acnt{position:absolute;top:-3px;right:-3px;background:#ef4444;color:#fff;border-radius:50%;width:17px;height:17px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:800;}
 
-    /* ── STORY PREVIEW ── */
-    .story-frame { width: 180px; aspect-ratio: 9/16; flex-shrink: 0; position: relative; overflow: hidden; display: flex; flex-direction: column; border-radius: 14px; }
+  /* drawer */
+  .drawer{position:fixed;right:0;top:0;bottom:0;width:360px;max-width:100vw;background:#111;border-left:1px solid var(--bd);z-index:500;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;padding:24px;}
+  .drawer.on{transform:translateX(0);}
+  .dov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:499;display:none;}
+  .dov.on{display:block;}
+  .ditem{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:10px;}
 
-    /* ── APPROVED BADGE ── */
-    .abadge { position: fixed; bottom: 24px; right: 24px; z-index: 100; background: var(--purple); color: white; border: none; cursor: pointer; width: 52px; height: 52px; border-radius: 50%; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(139,92,246,.5); font-size: 20px; transition: transform .2s; }
-    .abadge:hover { transform: scale(1.08); }
-    .abadge.show { display: flex; }
-    .acnt { position: absolute; top: -3px; right: -3px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  /* divider */
+  .hr{width:100%;height:1px;background:var(--bd);margin:12px 0;}
 
-    /* ── DRAWER ── */
-    .drawer { position: fixed; right: 0; top: 0; bottom: 0; width: 360px; max-width: 100vw; background: #111; border-left: 1px solid var(--bord); z-index: 200; transform: translateX(100%); transition: transform .3s cubic-bezier(.4,0,.2,1); overflow-y: auto; padding: 24px; }
-    .drawer.open { transform: translateX(0); }
-    .doverlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 199; display: none; }
-    .doverlay.open { display: block; }
-    .ditem { background: var(--surf); border: 1px solid var(--bord); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+  /* layout */
+  .workspace{display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start;}
+  .form-col{position:sticky;top:68px;max-height:calc(100vh - 84px);overflow-y:auto;overflow-x:hidden;padding-right:2px;}
+  .form-col::-webkit-scrollbar{width:3px;}
+  .out-col{min-height:420px;}
 
-    /* ── TOAST ── */
-    .toast { position: fixed; bottom: 88px; right: 24px; z-index: 300; background: #1e1e1e; border: 1px solid var(--bord); border-radius: 10px; padding: 10px 16px; font-size: 13px; color: #e5e5e5; box-shadow: 0 8px 32px rgba(0,0,0,.5); display: flex; align-items: center; gap: 8px; opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; pointer-events: none; }
-    .toast.show { opacity: 1; transform: translateY(0); }
-
-    input[type="file"] { padding: 7px 10px; font-size: 13px; border-radius: 8px !important; }
-    input[type="file"]::-webkit-file-upload-button { background: #2a2a2a; color: #d1d5db; border: none; padding: 3px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; margin-right: 8px; }
+  @media(max-width:900px){
+    .workspace{grid-template-columns:1fr;}
+    .form-col{position:static;max-height:none;}
+  }
   </style>
 </head>
 <body>
+<div id="app">
 
-<!-- HEADER -->
-<header style="background:#0a0a0a;border-bottom:1px solid #1a1a1a;" class="sticky top-0 z-50">
-  <div class="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+<!-- ══════════ HEADER ══════════ -->
+<header style="border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:100;background:rgba(12,12,12,.88);backdrop-filter:blur(14px);">
+  <div style="max-width:1120px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
       </div>
-      <div>
-        <span class="font-bold text-white text-sm">Content Studio</span>
-        <span class="text-gray-600 text-xs ml-2 hidden sm:inline">Adição Digital &amp; Neurociência</span>
-      </div>
+      <span style="font-weight:800;font-size:14px;letter-spacing:-.02em;">Content Studio</span>
+      <span style="font-size:11px;color:var(--dim);letter-spacing:.02em;display:none;" id="hsubt">Adição Digital &amp; Neurociência</span>
     </div>
-    <div class="flex items-center gap-3">
-      <div class="flex items-center gap-2">
-        <span id="api-dot" class="w-2 h-2 rounded-full transition-colors" style="background:#4b5563;"></span>
-        <span id="api-lbl" class="text-xs text-gray-600 hidden sm:block">Sem chave</span>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="display:flex;align-items:center;gap:6px;" id="apistat">
+        <span id="adot" style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);flex-shrink:0;"></span>
+        <span id="albl" style="font-size:12px;color:var(--dim);">Sem chave</span>
       </div>
-      <button onclick="toggleCfg()" class="btn-g">
+      <button class="btn btn-sm" onclick="toggleCfg()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         Configurar
       </button>
@@ -164,953 +238,925 @@
   </div>
 </header>
 
-<!-- CONFIG PANEL -->
-<div id="cfg-panel" class="hidden" style="background:#0d0d0d;border-bottom:1px solid #1a1a1a;">
-  <div class="max-w-6xl mx-auto px-5 py-5 grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div>
-      <label>Anthropic API Key</label>
-      <div class="flex gap-2">
-        <input type="password" id="api-key" class="rounded-lg px-3 py-2 text-sm flex-1" placeholder="sk-ant-..." style="font-family:monospace;letter-spacing:1px;" />
-        <button onclick="saveKey()" class="btn-p px-4 py-2 text-sm">Salvar</button>
+<!-- ══════════ CONFIG ══════════ -->
+<div id="cfg" style="display:none;border-bottom:1px solid var(--bd);background:rgba(255,255,255,.02);">
+  <div style="max-width:1120px;margin:0 auto;padding:18px 24px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+      <div>
+        <span class="label">Anthropic API Key</span>
+        <div style="display:flex;gap:8px;">
+          <input type="password" id="akey" placeholder="sk-ant-api03-…" style="font-family:monospace;letter-spacing:.5px;padding:9px 12px;" />
+          <button class="btn btn-acc" style="padding:9px 18px;font-size:13px;border-radius:10px;flex-shrink:0;" onclick="saveKey()">Salvar</button>
+        </div>
+        <p style="font-size:11px;color:var(--dim);margin-top:5px;">Salva no seu navegador (localStorage)</p>
       </div>
-      <p class="text-xs text-gray-700 mt-1">Armazenada apenas no seu navegador</p>
-    </div>
-    <div>
-      <label>Tom de Voz</label>
-      <select id="tone" class="rounded-lg px-3 py-2 text-sm mt-1">
-        <option value="educativo e acessível">Educativo</option>
-        <option value="provocador e desafiador">Provocador</option>
-        <option value="emocional e humano">Emocional</option>
-        <option value="técnico e baseado em evidências">Técnico</option>
-      </select>
-    </div>
-    <div>
-      <label>Público-alvo</label>
-      <select id="aud" class="rounded-lg px-3 py-2 text-sm mt-1">
-        <option value="jovens, adolescentes e famílias">Jovens e Famílias</option>
-        <option value="líderes e equipes corporativas">Empresas</option>
-        <option value="profissionais de saúde mental e médicos">Profissionais de Saúde</option>
-        <option value="público geral interessado em saúde digital">Geral</option>
-      </select>
+      <div>
+        <span class="label">Tom de Voz</span>
+        <select id="tone" style="padding:9px 12px;">
+          <option value="educativo e acessível">Educativo</option>
+          <option value="provocador e desafiador">Provocador</option>
+          <option value="emocional e humano">Emocional</option>
+          <option value="técnico e baseado em evidências">Técnico</option>
+        </select>
+      </div>
+      <div>
+        <span class="label">Público-alvo</span>
+        <select id="aud" style="padding:9px 12px;">
+          <option value="jovens, adolescentes e famílias">Jovens e Famílias</option>
+          <option value="líderes e equipes corporativas">Empresas</option>
+          <option value="profissionais de saúde mental e médicos">Profissionais de Saúde</option>
+          <option value="público geral interessado em saúde digital">Geral</option>
+        </select>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- MAIN -->
-<main class="max-w-6xl mx-auto px-4 py-6">
+<!-- ══════════ MAIN ══════════ -->
+<main style="max-width:1120px;margin:0 auto;padding:28px 24px 80px;">
 
   <!-- TABS -->
-  <div style="border-bottom:1px solid #1a1a1a;" class="mb-6 overflow-x-auto">
-    <div class="flex">
-      <button class="tab-btn active" onclick="switchTab('carousel',this)">🎠 Carrossel</button>
-      <button class="tab-btn" onclick="switchTab('post',this)">🖼️ Post Estático</button>
-      <button class="tab-btn" onclick="switchTab('story',this)">📱 Story</button>
-      <button class="tab-btn" onclick="switchTab('caption',this)">✍️ Legenda + CTA</button>
+  <div style="margin-bottom:24px;overflow-x:auto;">
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab('c',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="6" width="6" height="12" rx="1"/><rect x="9" y="3" width="6" height="18" rx="1"/><rect x="17" y="6" width="6" height="12" rx="1"/></svg>
+        Carrossel
+      </button>
+      <button class="tab" onclick="switchTab('p',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        Post
+      </button>
+      <button class="tab" onclick="switchTab('s',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/></svg>
+        Story
+      </button>
+      <button class="tab" onclick="switchTab('l',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Legenda
+      </button>
     </div>
   </div>
 
-  <!-- ═══════════ CARROSSEL ═══════════ -->
-  <div id="tab-carousel" class="tab-pane active">
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      <div class="lg:col-span-2">
-        <div class="card p-5 space-y-4">
-          <h2 class="font-semibold text-white text-sm flex items-center gap-2">🎠 Carrossel <span class="text-gray-600 font-normal text-xs">5 a 7 slides</span></h2>
+  <!-- ══ CARROSSEL ══ -->
+  <div id="pane-c" class="pane on">
+    <div class="workspace">
+      <div class="form-col">
+        <div class="g" style="padding:22px;display:flex;flex-direction:column;gap:16px;">
           <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="stag">💡 Inspirações prontas</span>
-              <button onclick="refreshChips('carousel')" class="text-xs text-purple-400 hover:text-purple-300 transition-colors">Ver outros →</button>
+            <p style="font-size:15px;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;">Carrossel</p>
+            <p style="font-size:12px;color:var(--mut);">5 a 7 slides para Instagram</p>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span class="micro">💡 Inspirações</span>
+              <button style="font-size:11px;color:var(--acc2);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;" onclick="refreshC('c')">Outros →</button>
             </div>
-            <div id="chips-carousel" class="flex flex-wrap gap-2"></div>
+            <div class="chips" id="ch-c"></div>
           </div>
-          <div><label>Briefing *</label><textarea id="c-brief" rows="4" class="rounded-lg px-3 py-2 text-sm resize-none" placeholder="Descreva o tema, ideia ou ângulo..."></textarea></div>
-          <div><label>Link de referência</label><input type="url" id="c-link" class="rounded-lg px-3 py-2 text-sm" placeholder="https://..." /></div>
+          <div><span class="label">Briefing *</span><textarea id="c-b" rows="3" placeholder="Tema, ideia ou ângulo que quer explorar…" style="padding:10px 12px;"></textarea></div>
+          <div><span class="label">Link de referência</span><input id="c-l" type="url" placeholder="https://…" style="padding:9px 12px;" /></div>
           <div>
-            <label>Arquivo .txt</label>
-            <input type="file" id="c-file" accept=".txt" class="rounded-lg text-sm" onchange="loadFile(this,'c-fc')" />
-            <textarea id="c-fc" rows="2" class="rounded-lg px-3 py-2 text-sm resize-none mt-2 hidden"></textarea>
+            <span class="label">Arquivo .txt (opcional)</span>
+            <input type="file" id="c-f" accept=".txt" onchange="loadFile(this,'c-fc')" />
+            <textarea id="c-fc" rows="2" style="padding:8px 12px;font-size:12px;margin-top:6px;display:none;" placeholder="Conteúdo do arquivo…"></textarea>
           </div>
-          <div><label>Número de slides</label><select id="c-n" class="rounded-lg px-3 py-2 text-sm"><option value="5">5 slides</option><option value="6" selected>6 slides</option><option value="7">7 slides</option></select></div>
-          <button id="c-btn" onclick="genCarousel()" class="btn-p w-full py-3 text-sm">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gerar Carrossel
+          <div><span class="label">Número de slides</span>
+            <select id="c-n" style="padding:9px 12px;">
+              <option value="5">5 slides</option>
+              <option value="6" selected>6 slides</option>
+              <option value="7">7 slides</option>
+            </select>
+          </div>
+          <button class="btn btn-acc" id="c-btn" onclick="genCarousel()" style="width:100%;padding:13px;font-size:14px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Gerar Carrossel
           </button>
         </div>
       </div>
-      <div class="lg:col-span-3 space-y-3">
-        <div id="c-loading" class="hidden card p-12 flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-500 text-sm">Criando carrossel…</p></div>
-        <div id="c-error" class="hidden"></div>
-        <div id="c-out" class="hidden">
-          <div class="action-bar">
-            <button onclick="approveResult('carousel')" class="btn-g btn-approve">✅ Aprovar</button>
-            <button onclick="discardResult('c-out','carousel')" class="btn-g btn-reject">❌ Descartar</button>
-            <button onclick="dlAllSlides()" class="btn-g btn-dl">⬇️ Baixar todos</button>
-            <button onclick="genCarousel()" class="btn-g">🔄 Nova versão</button>
-            <button onclick="sendToCaption('carousel')" class="btn-g btn-leg">✍️ Usar como legenda</button>
+      <div class="out-col">
+        <div id="c-load" style="display:none;" class="g empty"><div class="spin"></div><p style="font-size:13px;color:var(--mut);">Gerando carrossel…</p></div>
+        <div id="c-err"  style="display:none;"></div>
+        <div id="c-mt"   class="g"><div class="empty">
+          <div class="orb">✦</div>
+          <div><p style="font-size:16px;font-weight:800;margin-bottom:6px;">Pronto para criar</p><p style="font-size:13px;color:var(--mut);max-width:240px;line-height:1.6;">Preencha o briefing e clique em Gerar Carrossel</p></div>
+          <div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:260px;">
+            <div style="background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px;text-align:left;">
+              <span>🎨</span><div><p style="font-size:12px;font-weight:700;">Preview visual editorial</p><p style="font-size:11px;color:var(--dim);">Slides com Playfair Display</p></div>
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px;text-align:left;">
+              <span>⬇️</span><div><p style="font-size:12px;font-weight:700;">Download PNG individual</p><p style="font-size:11px;color:var(--dim);">Cada slide ou todos de uma vez</p></div>
+            </div>
           </div>
-          <p id="c-title" class="text-sm font-semibold text-gray-300 mb-3"></p>
+        </div></div>
+        <div id="c-out" style="display:none;">
+          <div class="acts">
+            <button class="btn btn-sm btn-ok"  onclick="approve('c')">✅ Aprovar</button>
+            <button class="btn btn-sm btn-err" onclick="discard('c')">✕ Descartar</button>
+            <button class="btn btn-sm btn-blu" onclick="dlAll()">⬇ Baixar todos</button>
+            <button class="btn btn-sm"         onclick="genCarousel()">↺ Nova versão</button>
+            <button class="btn btn-sm btn-ora" onclick="toCaption('c')">✍ Legenda</button>
+          </div>
+          <p id="c-title" style="font-size:13px;font-weight:700;color:var(--mut);margin-bottom:12px;letter-spacing:-.01em;"></p>
           <div id="c-viewer"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════ POST ═══════════ -->
-  <div id="tab-post" class="tab-pane">
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      <div class="lg:col-span-2">
-        <div class="card p-5 space-y-4">
-          <h2 class="font-semibold text-white text-sm">🖼️ Post Estático</h2>
+  <!-- ══ POST ══ -->
+  <div id="pane-p" class="pane">
+    <div class="workspace">
+      <div class="form-col">
+        <div class="g" style="padding:22px;display:flex;flex-direction:column;gap:16px;">
+          <div><p style="font-size:15px;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;">Post Estático</p><p style="font-size:12px;color:var(--mut);">Imagem quadrada de alto impacto</p></div>
           <div>
-            <div class="flex items-center justify-between mb-2"><span class="stag">💡 Inspirações prontas</span><button onclick="refreshChips('post')" class="text-xs text-purple-400 hover:text-purple-300">Ver outros →</button></div>
-            <div id="chips-post" class="flex flex-wrap gap-2"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span class="micro">💡 Inspirações</span><button style="font-size:11px;color:var(--acc2);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;" onclick="refreshC('p')">Outros →</button></div>
+            <div class="chips" id="ch-p"></div>
           </div>
-          <div><label>Briefing *</label><textarea id="p-brief" rows="4" class="rounded-lg px-3 py-2 text-sm resize-none" placeholder="Ex: dado impactante sobre tempo de tela..."></textarea></div>
-          <div><label>Link de referência</label><input type="url" id="p-link" class="rounded-lg px-3 py-2 text-sm" placeholder="https://..." /></div>
+          <div><span class="label">Briefing *</span><textarea id="p-b" rows="3" placeholder="Ex: dado impactante sobre tempo de tela…" style="padding:10px 12px;"></textarea></div>
+          <div><span class="label">Link de referência</span><input id="p-l" type="url" placeholder="https://…" style="padding:9px 12px;" /></div>
           <div>
-            <label>Arquivo .txt</label>
-            <input type="file" id="p-file" accept=".txt" class="rounded-lg text-sm" onchange="loadFile(this,'p-fc')" />
-            <textarea id="p-fc" rows="2" class="rounded-lg px-3 py-2 text-sm resize-none mt-2 hidden"></textarea>
+            <span class="label">Arquivo .txt</span>
+            <input type="file" id="p-f" accept=".txt" onchange="loadFile(this,'p-fc')" />
+            <textarea id="p-fc" rows="2" style="padding:8px 12px;font-size:12px;margin-top:6px;display:none;"></textarea>
           </div>
-          <div><label>Formato visual</label><select id="p-fmt" class="rounded-lg px-3 py-2 text-sm"><option value="frase de impacto">Frase de impacto</option><option value="dado + contexto">Dado + contexto</option><option value="pergunta provocadora">Pergunta provocadora</option><option value="mini infográfico descritivo">Mini infográfico</option></select></div>
-          <button id="p-btn" onclick="genPost()" class="btn-p w-full py-3 text-sm">
+          <div><span class="label">Formato visual</span>
+            <select id="p-fmt" style="padding:9px 12px;">
+              <option value="frase de impacto">Frase de impacto</option>
+              <option value="dado + contexto">Dado + contexto</option>
+              <option value="pergunta provocadora">Pergunta provocadora</option>
+              <option value="mini infográfico descritivo">Mini infográfico</option>
+            </select>
+          </div>
+          <button class="btn btn-acc" id="p-btn" onclick="genPost()" style="width:100%;padding:13px;font-size:14px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gerar Post
           </button>
         </div>
       </div>
-      <div class="lg:col-span-3 space-y-3">
-        <div id="p-loading" class="hidden card p-12 flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-500 text-sm">Criando post…</p></div>
-        <div id="p-error" class="hidden"></div>
-        <div id="p-out" class="hidden">
-          <div class="action-bar">
-            <button onclick="approveResult('post')" class="btn-g btn-approve">✅ Aprovar</button>
-            <button onclick="discardResult('p-out','post')" class="btn-g btn-reject">❌ Descartar</button>
-            <button onclick="dlEl('p-preview','post-estatico')" class="btn-g btn-dl">⬇️ Baixar PNG</button>
-            <button onclick="genPost()" class="btn-g">🔄 Nova versão</button>
-            <button onclick="sendToCaption('post')" class="btn-g btn-leg">✍️ Usar como legenda</button>
+      <div class="out-col">
+        <div id="p-load" style="display:none;" class="g empty"><div class="spin"></div><p style="font-size:13px;color:var(--mut);">Gerando post…</p></div>
+        <div id="p-err" style="display:none;"></div>
+        <div id="p-mt" class="g"><div class="empty"><div class="orb">🖼</div><p style="font-size:16px;font-weight:800;">Post pronto para criar</p><p style="font-size:13px;color:var(--mut);max-width:220px;line-height:1.6;">Briefing + formato → preview visual com paleta de cores</p></div></div>
+        <div id="p-out" style="display:none;">
+          <div class="acts">
+            <button class="btn btn-sm btn-ok"  onclick="approve('p')">✅ Aprovar</button>
+            <button class="btn btn-sm btn-err" onclick="discard('p')">✕ Descartar</button>
+            <button class="btn btn-sm btn-blu" onclick="dlEl('p-preview','post')">⬇ PNG</button>
+            <button class="btn btn-sm"         onclick="genPost()">↺ Nova versão</button>
+            <button class="btn btn-sm btn-ora" onclick="toCaption('p')">✍ Legenda</button>
           </div>
-          <div id="p-preview-wrap"></div>
-          <div id="p-details" class="card p-4 mt-3 text-sm space-y-3"></div>
+          <div id="p-pw"></div>
+          <div id="p-det" class="g" style="padding:16px;margin-top:12px;"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════ STORY ═══════════ -->
-  <div id="tab-story" class="tab-pane">
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      <div class="lg:col-span-2">
-        <div class="card p-5 space-y-4">
-          <h2 class="font-semibold text-white text-sm">📱 Story Vertical</h2>
+  <!-- ══ STORY ══ -->
+  <div id="pane-s" class="pane">
+    <div class="workspace">
+      <div class="form-col">
+        <div class="g" style="padding:22px;display:flex;flex-direction:column;gap:16px;">
+          <div><p style="font-size:15px;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;">Story Vertical</p><p style="font-size:12px;color:var(--mut);">Formato 9:16 para Instagram Stories</p></div>
           <div>
-            <div class="flex items-center justify-between mb-2"><span class="stag">💡 Inspirações prontas</span><button onclick="refreshChips('story')" class="text-xs text-purple-400 hover:text-purple-300">Ver outros →</button></div>
-            <div id="chips-story" class="flex flex-wrap gap-2"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span class="micro">💡 Inspirações</span><button style="font-size:11px;color:var(--acc2);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;" onclick="refreshC('s')">Outros →</button></div>
+            <div class="chips" id="ch-s"></div>
           </div>
-          <div><label>Briefing *</label><textarea id="s-brief" rows="4" class="rounded-lg px-3 py-2 text-sm resize-none" placeholder="Ex: reflexão sobre o dopamine loop..."></textarea></div>
-          <div><label>Tipo de story</label><select id="s-type" class="rounded-lg px-3 py-2 text-sm"><option value="enquete">Enquete</option><option value="reflexão impactante">Reflexão</option><option value="dado chocante">Dado chocante</option><option value="bastidor pessoal">Bastidor</option><option value="CTA direto">CTA direto</option></select></div>
-          <button id="s-btn" onclick="genStory()" class="btn-p w-full py-3 text-sm">
+          <div><span class="label">Briefing *</span><textarea id="s-b" rows="3" placeholder="Ex: reflexão sobre o dopamine loop…" style="padding:10px 12px;"></textarea></div>
+          <div><span class="label">Tipo de story</span>
+            <select id="s-t" style="padding:9px 12px;">
+              <option value="enquete">Enquete</option>
+              <option value="reflexão impactante">Reflexão</option>
+              <option value="dado chocante">Dado chocante</option>
+              <option value="bastidor pessoal">Bastidor</option>
+              <option value="CTA direto">CTA direto</option>
+            </select>
+          </div>
+          <button class="btn btn-acc" id="s-btn" onclick="genStory()" style="width:100%;padding:13px;font-size:14px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gerar Story
           </button>
         </div>
       </div>
-      <div class="lg:col-span-3 space-y-3">
-        <div id="s-loading" class="hidden card p-12 flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-500 text-sm">Criando story…</p></div>
-        <div id="s-error" class="hidden"></div>
-        <div id="s-out" class="hidden">
-          <div class="action-bar">
-            <button onclick="approveResult('story')" class="btn-g btn-approve">✅ Aprovar</button>
-            <button onclick="discardResult('s-out','story')" class="btn-g btn-reject">❌ Descartar</button>
-            <button onclick="dlEl('s-preview','story')" class="btn-g btn-dl">⬇️ Baixar PNG</button>
-            <button onclick="genStory()" class="btn-g">🔄 Nova versão</button>
-            <button onclick="sendToCaption('story')" class="btn-g btn-leg">✍️ Usar como legenda</button>
+      <div class="out-col">
+        <div id="s-load" style="display:none;" class="g empty"><div class="spin"></div><p style="font-size:13px;color:var(--mut);">Gerando story…</p></div>
+        <div id="s-err" style="display:none;"></div>
+        <div id="s-mt" class="g"><div class="empty"><div class="orb">📱</div><p style="font-size:16px;font-weight:800;">Story pronto para criar</p><p style="font-size:13px;color:var(--mut);max-width:220px;line-height:1.6;">Preview 9:16 + música + instrução visual + download PNG</p></div></div>
+        <div id="s-out" style="display:none;">
+          <div class="acts">
+            <button class="btn btn-sm btn-ok"  onclick="approve('s')">✅ Aprovar</button>
+            <button class="btn btn-sm btn-err" onclick="discard('s')">✕ Descartar</button>
+            <button class="btn btn-sm btn-blu" onclick="dlEl('s-preview','story')">⬇ PNG</button>
+            <button class="btn btn-sm"         onclick="genStory()">↺ Nova versão</button>
+            <button class="btn btn-sm btn-ora" onclick="toCaption('s')">✍ Legenda</button>
           </div>
-          <div class="flex gap-4 items-start flex-wrap">
-            <div id="s-preview-wrap"></div>
-            <div id="s-details" class="flex-1 min-w-0"></div>
+          <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
+            <div id="s-pw"></div>
+            <div id="s-det" style="flex:1;min-width:180px;"></div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════ LEGENDA ═══════════ -->
-  <div id="tab-caption" class="tab-pane">
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      <div class="lg:col-span-2">
-        <div class="card p-5 space-y-4">
-          <h2 class="font-semibold text-white text-sm">✍️ Legenda + CTA</h2>
+  <!-- ══ LEGENDA ══ -->
+  <div id="pane-l" class="pane">
+    <div class="workspace">
+      <div class="form-col">
+        <div class="g" style="padding:22px;display:flex;flex-direction:column;gap:16px;">
+          <div><p style="font-size:15px;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;">Legenda + CTA</p><p style="font-size:12px;color:var(--mut);">Texto + hashtags + 3 CTAs</p></div>
           <div>
-            <div class="flex items-center justify-between mb-2"><span class="stag">💡 Inspirações prontas</span><button onclick="refreshChips('caption')" class="text-xs text-purple-400 hover:text-purple-300">Ver outros →</button></div>
-            <div id="chips-caption" class="flex flex-wrap gap-2"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span class="micro">💡 Inspirações</span><button style="font-size:11px;color:var(--acc2);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;" onclick="refreshC('l')">Outros →</button></div>
+            <div class="chips" id="ch-l"></div>
           </div>
-          <div><label>Briefing ou conteúdo base *</label><textarea id="leg-brief" rows="6" class="rounded-lg px-3 py-2 text-sm resize-none" placeholder="Cole o conteúdo gerado ou descreva o tema…"></textarea></div>
-          <div><label>Objetivo</label><select id="leg-goal" class="rounded-lg px-3 py-2 text-sm"><option value="gerar engajamento (curtidas e comentários)">Engajamento</option><option value="fazer o seguidor salvar o post">Salvar</option><option value="fazer o seguidor compartilhar">Compartilhar</option><option value="levar ao link da bio">Link na bio</option><option value="gerar mensagens no DM">DM</option></select></div>
-          <div><label>Comprimento</label><select id="leg-len" class="rounded-lg px-3 py-2 text-sm"><option value="curta (máximo 5 linhas, direta e impactante)">Curta (até 5 linhas)</option><option value="média (até 15 linhas, com contexto e valor)" selected>Média (até 15 linhas)</option><option value="longa no estilo storytelling emocional">Longa (storytelling)</option></select></div>
-          <button id="leg-btn" onclick="genCaption()" class="btn-p w-full py-3 text-sm">
+          <div><span class="label">Briefing ou conteúdo base *</span><textarea id="l-b" rows="5" placeholder="Cole conteúdo gerado ou descreva o tema…" style="padding:10px 12px;"></textarea></div>
+          <div><span class="label">Objetivo</span>
+            <select id="l-g" style="padding:9px 12px;">
+              <option value="gerar engajamento (curtidas e comentários)">Engajamento</option>
+              <option value="fazer o seguidor salvar o post">Salvar</option>
+              <option value="fazer o seguidor compartilhar">Compartilhar</option>
+              <option value="levar ao link da bio">Link na bio</option>
+              <option value="gerar mensagens no DM">DM</option>
+            </select>
+          </div>
+          <div><span class="label">Comprimento</span>
+            <select id="l-n" style="padding:9px 12px;">
+              <option value="curta (máximo 5 linhas, direta e impactante)">Curta (até 5 linhas)</option>
+              <option value="média (até 15 linhas, com contexto e valor)" selected>Média (até 15 linhas)</option>
+              <option value="longa no estilo storytelling emocional">Longa (storytelling)</option>
+            </select>
+          </div>
+          <button class="btn btn-acc" id="l-btn" onclick="genCaption()" style="width:100%;padding:13px;font-size:14px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gerar Legenda
           </button>
         </div>
       </div>
-      <div class="lg:col-span-3 space-y-3">
-        <div id="leg-loading" class="hidden card p-12 flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-500 text-sm">Escrevendo legenda…</p></div>
-        <div id="leg-error" class="hidden"></div>
-        <div id="leg-out" class="hidden">
-          <div class="action-bar">
-            <button onclick="approveResult('caption')" class="btn-g btn-approve">✅ Aprovar</button>
-            <button onclick="discardResult('leg-out','caption')" class="btn-g btn-reject">❌ Descartar</button>
-            <button onclick="copyCaption()" class="btn-g btn-dl">📋 Copiar legenda</button>
-            <button onclick="genCaption()" class="btn-g">🔄 Nova versão</button>
+      <div class="out-col">
+        <div id="l-load" style="display:none;" class="g empty"><div class="spin"></div><p style="font-size:13px;color:var(--mut);">Escrevendo legenda…</p></div>
+        <div id="l-err" style="display:none;"></div>
+        <div id="l-mt" class="g"><div class="empty"><div class="orb">✍</div><p style="font-size:16px;font-weight:800;">Legenda pronta para criar</p><p style="font-size:13px;color:var(--mut);max-width:230px;line-height:1.6;">Texto + 10 hashtags + 3 CTAs + dica de alcance</p></div></div>
+        <div id="l-out" style="display:none;">
+          <div class="acts">
+            <button class="btn btn-sm btn-ok"  onclick="approve('l')">✅ Aprovar</button>
+            <button class="btn btn-sm btn-err" onclick="discard('l')">✕ Descartar</button>
+            <button class="btn btn-sm btn-blu" onclick="cpCaption()">📋 Copiar</button>
+            <button class="btn btn-sm"         onclick="genCaption()">↺ Nova versão</button>
           </div>
-          <div id="leg-cards" class="space-y-4"></div>
+          <div id="l-cards" style="display:flex;flex-direction:column;gap:14px;"></div>
         </div>
       </div>
     </div>
   </div>
 
 </main>
+</div><!-- #app -->
 
 <!-- DRAWER -->
-<div id="doverlay" class="doverlay" onclick="closeDrawer()"></div>
+<div id="dov" class="dov" onclick="closeDrawer()"></div>
 <div id="drawer" class="drawer">
-  <div class="flex items-center justify-between mb-5">
-    <h3 class="font-bold text-white">Conteúdo Aprovado</h3>
-    <button onclick="closeDrawer()" class="btn-g text-xs">Fechar</button>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <p style="font-weight:800;font-size:16px;">Aprovados</p>
+    <button class="btn btn-sm" onclick="closeDrawer()">Fechar</button>
   </div>
-  <p id="drawer-empty" class="text-gray-600 text-sm">Nenhum conteúdo aprovado ainda.</p>
-  <div id="drawer-list"></div>
-  <button onclick="clearApproved()" id="clr-btn" class="hidden btn-g btn-reject w-full justify-center mt-4">🗑️ Limpar tudo</button>
+  <p id="d-empty" style="font-size:13px;color:var(--mut);">Nenhum item aprovado ainda.</p>
+  <div id="d-list"></div>
+  <button id="d-clr" class="btn btn-sm btn-err" style="width:100%;justify-content:center;margin-top:12px;display:none;" onclick="clearApproved()">🗑️ Limpar tudo</button>
 </div>
+<button class="abadge" id="abadge" onclick="openDrawer()">✅<span class="acnt" id="acnt" style="display:none;"></span></button>
+<div class="toast" id="toast"><span id="ti"></span><span id="tm"></span></div>
 
-<!-- APPROVED BADGE -->
-<button class="abadge" id="abadge" onclick="openDrawer()">
-  ✅<span class="acnt" id="acnt" style="display:none;"></span>
-</button>
-
-<!-- TOAST -->
-<div id="toast" class="toast"><span id="ti"></span><span id="tm"></span></div>
-
-<!-- ═══════════════════════════════════════════════════
-     JAVASCRIPT
-════════════════════════════════════════════════════ -->
+<!-- ══════════════════════ JS ══════════════════════ -->
 <script>
+'use strict';
+
 /* ── PROMPT BANK ── */
-const PROMPTS = {
-  carousel:[
-    "Os 5 sinais que mostram que seu cérebro já está viciado em scroll",
+const BANK = {
+  c:[
+    "Os 5 sinais que mostram que seu cérebro está viciado em scroll",
     "O que acontece no cérebro quando você posta e espera pelas curtidas",
     "Por que é tão difícil largar o celular? A neurociência explica",
-    "7 hábitos digitais que estão sabotando seu sono sem você perceber",
-    "A diferença entre uso saudável e adição digital — onde você está?",
-    "Como os algoritmos foram projetados para sequestrar sua atenção",
-    "O que a ciência diz sobre crianças, adolescentes e tempo de tela",
-    "5 perguntas essenciais para conversar sobre celular com adolescentes",
-    "Dopamina: o que é e como as redes sociais a exploram no dia a dia",
-    "A epidemia silenciosa: adição digital nas empresas e queda de produtividade",
-    "Como o FOMO é usado para te manter preso nas redes sociais",
-    "Detox digital: o que funciona e o que é modismo sem evidência",
-    "Neurociência do prazer: como o cérebro aprende a querer mais tela",
-    "O impacto do celular no sono dos adolescentes — dados alarmantes",
+    "7 hábitos digitais que sabotam seu sono sem você perceber",
+    "A diferença entre uso saudável e adição digital",
+    "Como os algoritmos sequestram sua atenção",
+    "O que a ciência diz sobre crianças e tempo de tela",
+    "5 perguntas essenciais sobre celular e adolescentes",
+    "Dopamina: como as redes sociais exploram seu cérebro",
+    "Adição digital nas empresas e queda de produtividade",
+    "Como o FOMO mantém você preso nas redes sociais",
+    "Detox digital: o que funciona de verdade",
+    "Neurociência do prazer e o ciclo vicioso da tela",
+    "O cérebro adolescente e a vulnerabilidade digital",
   ],
-  post:[
-    "Brasil lidera ranking mundial: média de 9h diárias em telas",
-    "Uma notificação reduz o foco por 23 minutos — mesmo após fechar",
-    "70% dos adolescentes relatam ansiedade quando ficam sem celular",
-    "Cada like libera dopamina — o mesmo mecanismo do jogo patológico",
-    "Crianças de 2 anos já passam mais tempo em telas do que brincando",
-    "Você checa o celular em média 96 vezes por dia — 1 vez a cada 10min",
-    "A luz azul da tela atrasa o sono em até 3 horas por noite",
-    "Redes sociais foram projetadas por ex-viciados para criar dependência",
-    "O cérebro adolescente é 3x mais vulnerável à adição digital",
-    "Pergunta que todo pai deveria fazer antes de dar o primeiro smartphone",
-    "O que ninguém te conta sobre os bastidores do algoritmo do TikTok",
-    "Atenção fragmentada: o custo invisível do uso excessivo de telas",
+  p:[
+    "Brasil lidera: 9h diárias em telas — maior do mundo",
+    "Uma notificação reduz o foco por 23 minutos",
+    "70% dos adolescentes sentem ansiedade sem o celular",
+    "Cada like libera dopamina — mesmo mecanismo do jogo",
+    "Crianças de 2 anos passam mais tempo em telas do que brincando",
+    "Você checa o celular 96 vezes por dia",
+    "A luz azul atrasa o sono em até 3 horas por noite",
+    "Redes sociais projetadas por ex-viciados para criar dependência",
+    "Cérebro adolescente: 3x mais vulnerável à adição digital",
+    "Pergunta que todo pai deveria fazer antes do primeiro smartphone",
+    "O que ninguém conta sobre os bastidores do TikTok",
+    "Atenção fragmentada: custo invisível do uso excessivo",
   ],
-  story:[
-    "Quando foi a última vez que você ficou 1h sem checar o celular?",
-    "Dado chocante sobre o tempo de tela de crianças brasileiras hoje",
-    "Bastidor: o que acontece depois de uma palestra sobre adição digital",
-    "Enquete: você conseguiria 24h sem redes sociais?",
-    "O que acontece no seu cérebro enquanto você assiste este story",
+  s:[
+    "Quando foi a última vez que ficou 1h sem checar o celular?",
+    "Dado chocante sobre tempo de tela de crianças hoje",
+    "Bastidor: depois de uma palestra sobre adição digital",
+    "Enquete: você ficaria 24h sem redes sociais?",
+    "O que acontece no seu cérebro agora, vendo este story",
     "Desafio: 7 dias reduzindo 1h de tela por dia. Topa?",
-    "O momento em que percebi que eu mesmo era dependente de tela",
-    "Uma pergunta que vai te deixar desconfortável hoje",
-    "Reflexão: você usa o celular ou o celular usa você?",
-    "CTA para quem quer conversar sobre saúde digital da sua equipe",
-    "Bastidor de palestra para executivos sobre foco e produtividade digital",
-    "Story de dado: o número que vai te fazer repensar seu uso das redes",
+    "O momento que percebi que eu mesmo era dependente",
+    "Reflexão: você usa o celular ou ele usa você?",
+    "Bastidor de palestra para executivos sobre foco digital",
+    "O número que vai te fazer repensar as redes sociais",
+    "CTA para equipes que querem saúde digital",
+    "Uma pergunta que vai te deixar desconfortável",
   ],
-  caption:[
-    "Legenda para post sobre tempo de tela e saúde mental de jovens",
-    "Legenda para carrossel sobre neurociência da adição digital",
-    "Legenda provocativa sobre uso de celular durante o jantar em família",
-    "Legenda para estatística impactante sobre adolescentes e ansiedade",
-    "Legenda para anunciar palestra ou workshop sobre saúde digital",
-    "Legenda storytelling sobre minha jornada como palestrante",
-    "Legenda para engajar profissionais de saúde no tema adição digital",
-    "Legenda para post sobre produtividade e distração digital no trabalho",
+  l:[
+    "Legenda sobre tempo de tela e saúde mental de jovens",
+    "Legenda para carrossel sobre neurociência da adição",
+    "Legenda provocativa: celular no jantar em família",
+    "Legenda para estatística sobre adolescentes e ansiedade",
+    "Legenda para anunciar palestra sobre saúde digital",
+    "Legenda storytelling: minha jornada como palestrante",
+    "Legenda para profissionais de saúde sobre adição digital",
+    "Legenda sobre produtividade e distração digital no trabalho",
     "Legenda provocadora para pais de adolescentes",
-    "Legenda para compartilhar pesquisa recente sobre telas e sono",
+    "Legenda para pesquisa sobre telas e sono",
   ]
 };
-const pIdx = { carousel:[], post:[], story:[], caption:[] };
 
-function shuffle(a) { const r=[...a]; for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];} return r; }
+const BRIEF = {c:'c-b',p:'p-b',s:'s-b',l:'l-b'};
+const pIdx  = {c:[],p:[],s:[],l:[]};
 
-function initChips(tab) {
-  pIdx[tab] = shuffle([...Array(PROMPTS[tab].length).keys()]);
-  renderChips(tab);
-}
-function refreshChips(tab) { pIdx[tab] = shuffle([...Array(PROMPTS[tab].length).keys()]); renderChips(tab); }
-
-const BRIEF_IDS = { carousel:'c-brief', post:'p-brief', story:'s-brief', caption:'leg-brief' };
-function renderChips(tab) {
-  const c = document.getElementById('chips-'+tab); c.innerHTML='';
-  pIdx[tab].slice(0,4).forEach(i => {
-    const b = document.createElement('button'); b.className='prompt-chip';
-    b.textContent = PROMPTS[tab][i];
-    b.onclick = () => { document.getElementById(BRIEF_IDS[tab]).value = PROMPTS[tab][i]; toast('💡','Prompt carregado!'); };
+function shuf(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+function initChips(k){pIdx[k]=shuf([...Array(BANK[k].length).keys()]);renderChips(k);}
+function refreshC(k){pIdx[k]=shuf([...Array(BANK[k].length).keys()]);renderChips(k);}
+function renderChips(k){
+  const c=document.getElementById('ch-'+k);c.innerHTML='';
+  pIdx[k].slice(0,4).forEach(i=>{
+    const b=document.createElement('button');b.className='chip';
+    b.textContent=BANK[k][i];
+    b.onclick=()=>{document.getElementById(BRIEF[k]).value=BANK[k][i];toast('💡','Prompt carregado!');};
     c.appendChild(b);
   });
 }
 
 /* ── INIT ── */
-document.addEventListener('DOMContentLoaded', () => {
-  const k = localStorage.getItem('anth_key');
-  if (k) { document.getElementById('api-key').value = k; setApiOK(true); }
-  const t=localStorage.getItem('tone'); if(t) document.getElementById('tone').value=t;
-  const a=localStorage.getItem('aud');  if(a) document.getElementById('aud').value=a;
-  document.getElementById('tone').onchange = e => localStorage.setItem('tone',e.target.value);
-  document.getElementById('aud').onchange  = e => localStorage.setItem('aud',e.target.value);
-  ['carousel','post','story','caption'].forEach(initChips);
+document.addEventListener('DOMContentLoaded',()=>{
+  // Migrate old key names
+  const oldKeys=['anthropic_api_key','anth_key'];
+  for(const ok of oldKeys){
+    const v=localStorage.getItem(ok);
+    if(v){localStorage.setItem('cs_key',v);if(ok!=='cs_key')localStorage.removeItem(ok);break;}
+  }
+  const k=localStorage.getItem('cs_key');
+  if(k){document.getElementById('akey').value=k;setApiOk(true);}
+  const t=localStorage.getItem('cs_tone');if(t)document.getElementById('tone').value=t;
+  const a=localStorage.getItem('cs_aud'); if(a)document.getElementById('aud').value=a;
+  document.getElementById('tone').onchange=e=>localStorage.setItem('cs_tone',e.target.value);
+  document.getElementById('aud').onchange =e=>localStorage.setItem('cs_aud',e.target.value);
+  Object.keys(BANK).forEach(initChips);
   renderBadge();
+  // show subtitle on wider screens
+  if(window.innerWidth>800)document.getElementById('hsubt').style.display='';
 });
 
-/* ── API KEY ── */
-function toggleCfg() { document.getElementById('cfg-panel').classList.toggle('hidden'); }
-function saveKey() {
-  const k = document.getElementById('api-key').value.trim();
-  if (!k.startsWith('sk-ant-')) { toast('⚠️','Key inválida — deve começar com sk-ant-'); return; }
-  localStorage.setItem('anth_key',k); setApiOK(true); toast('✅','API Key salva!');
-  document.getElementById('cfg-panel').classList.add('hidden');
+/* ── CONFIG ── */
+function toggleCfg(){const p=document.getElementById('cfg');p.style.display=p.style.display==='none'?'block':'none';}
+function saveKey(){
+  const k=document.getElementById('akey').value.trim();
+  if(!k.startsWith('sk-ant-')){toast('⚠️','Key inválida — deve começar com sk-ant-');return;}
+  localStorage.setItem('cs_key',k);setApiOk(true);toast('✅','API Key salva com sucesso!');
+  document.getElementById('cfg').style.display='none';
 }
-function setApiOK(ok) {
-  document.getElementById('api-dot').style.background = ok ? '#22c55e' : '#4b5563';
-  const l = document.getElementById('api-lbl');
-  l.textContent = ok ? 'API Key ativa' : 'Sem chave';
-  l.style.color  = ok ? '#4ade80' : '#6b7280';
+function setApiOk(ok){
+  document.getElementById('adot').style.background=ok?'#22c55e':'rgba(255,255,255,.18)';
+  const l=document.getElementById('albl');l.textContent=ok?'Conectado':'Sem chave';l.style.color=ok?'#4ade80':'var(--dim)';
 }
-const gKey  = () => localStorage.getItem('anth_key') || '';
-const gTone = () => document.getElementById('tone').value;
-const gAud  = () => document.getElementById('aud').value;
+const KEY  = ()=>localStorage.getItem('cs_key')||'';
+const TONE = ()=>document.getElementById('tone').value;
+const AUD  = ()=>document.getElementById('aud').value;
 
 /* ── TABS ── */
-function switchTab(n,b) {
-  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
-  document.getElementById('tab-'+n).classList.add('active'); b.classList.add('active');
+function switchTab(k,btn){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pane-'+k).classList.add('on');btn.classList.add('on');
 }
 
 /* ── FILE ── */
-function loadFile(inp,tid) {
-  const f=inp.files[0]; if(!f) return;
-  const t=document.getElementById(tid); t.classList.remove('hidden');
-  const r=new FileReader(); r.onload=e=>{t.value=e.target.result.slice(0,3000);toast('✅','Arquivo carregado!');};
-  r.readAsText(f);
+function loadFile(inp,tid){
+  const f=inp.files[0];if(!f)return;
+  const t=document.getElementById(tid);t.style.display='';
+  new FileReader().onload=e=>{t.value=e.target.result.slice(0,3000);toast('✅','Arquivo carregado!');};
+  const r=new FileReader();r.onload=e=>{t.value=e.target.result.slice(0,3000);toast('✅','Arquivo carregado!');};r.readAsText(f);
 }
 
-/* ── API ── */
-async function callAPI(sys,usr) {
-  const k=gKey(); if(!k) throw new Error('Insira sua API Key em "Configurar".');
-  const r=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-opus-4-5',max_tokens:2048,system:sys,messages:[{role:'user',content:usr}]})
-  });
-  if(!r.ok){const e=await r.json().catch(()=>({})); throw new Error(e?.error?.message||`Erro HTTP ${r.status}`);}
-  const d=await r.json();
-  const raw=d.content[0].text.trim().replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/,'');
-  return JSON.parse(raw);
+/* ── UTILS ── */
+function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function isLt(h){if(!h||h.length<7)return false;const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return(r*299+g*587+b*114)/1000>150;}
+function validHex(h){return/^#[0-9a-f]{6}$/i.test(h);}
+
+let _tt;
+function toast(icon,msg,dur=2800){
+  document.getElementById('ti').textContent=icon;document.getElementById('tm').textContent=msg;
+  const t=document.getElementById('toast');t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),dur);
 }
 
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function isLight(h){const r=parseInt((h||'#000').slice(1,3)||'0',16),g=parseInt((h||'#000').slice(3,5)||'0',16),b=parseInt((h||'#000').slice(5,7)||'0',16);return(r*299+g*587+b*114)/1000>150;}
-
-let tTimer;
-function toast(icon,msg){
-  document.getElementById('ti').textContent=icon;
-  document.getElementById('tm').textContent=msg;
-  const t=document.getElementById('toast'); t.classList.add('show');
-  clearTimeout(tTimer); tTimer=setTimeout(()=>t.classList.remove('show'),2800);
+/* ── LOADING HELPERS ── */
+function showLoad(k){
+  document.getElementById(k+'-mt').style.display='none';
+  document.getElementById(k+'-out').style.display='none';
+  document.getElementById(k+'-err').style.display='none';
+  document.getElementById(k+'-load').style.display='';
+  const b=document.getElementById(k+'-btn');if(b)b.disabled=true;
+}
+function hideLoad(k){
+  document.getElementById(k+'-load').style.display='none';
+  const b=document.getElementById(k+'-btn');if(b)b.disabled=false;
+}
+function showResult(k){
+  document.getElementById(k+'-mt').style.display='none';
+  document.getElementById(k+'-out').style.display='';
+}
+function showErr(k,msg){
+  const errDiv=document.getElementById(k+'-err');
+  const tips=msg.includes('401')?'Verifique se a API Key está correta.':
+              msg.includes('429')?'Limite de requisições atingido. Aguarde alguns segundos.':
+              msg.includes('API Key')?'Clique em "Configurar" e insira sua chave Anthropic.':
+              'Tente novamente ou verifique sua conexão.';
+  errDiv.innerHTML=`<div class="errbox"><strong>⚠️ ${e(msg)}</strong>${tips}</div>`;
+  errDiv.style.display='';
+}
+function showEmpty(k){
+  document.getElementById(k+'-mt').style.display='';
+  document.getElementById(k+'-out').style.display='none';
 }
 
-/* ── CURRENT RESULTS ── */
-const CR = { carousel:null, post:null, story:null, caption:null };
+/* ── API CALL ── */
+async function api(sys,usr){
+  const k=KEY();
+  if(!k)throw new Error('API Key não encontrada. Clique em "Configurar" e insira sua chave Anthropic.');
+  const body={
+    model:'claude-sonnet-4-6',
+    max_tokens:2048,
+    system:sys,
+    messages:[{role:'user',content:usr}]
+  };
+  let res;
+  try{
+    res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':k,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify(body)
+    });
+  }catch(ex){
+    throw new Error('Falha de rede. Verifique sua conexão com a internet.');
+  }
+  if(!res.ok){
+    let errMsg=`Erro HTTP ${res.status}`;
+    try{const j=await res.json();errMsg=j?.error?.message||errMsg;}catch(_){}
+    throw new Error(errMsg);
+  }
+  const data=await res.json();
+  const raw=data.content[0].text.trim()
+    .replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```\s*$/i,'').trim();
+  try{return JSON.parse(raw);}
+  catch(_){throw new Error('A IA retornou formato inválido. Tente gerar novamente.');}
+}
 
-function startL(tab){ document.getElementById(tab+'-loading').classList.remove('hidden'); document.getElementById(tab+'-out').classList.add('hidden'); document.getElementById(tab+'-error').classList.add('hidden'); const b=document.getElementById(tab+'-btn'); if(b)b.disabled=true; }
-function stopL(tab){ document.getElementById(tab+'-loading').classList.add('hidden'); const b=document.getElementById(tab+'-btn'); if(b)b.disabled=false; }
-function showErr(tab,msg){ const e=document.getElementById(tab+'-error'); e.innerHTML=`<div class="error-box">⚠️ ${esc(msg)}</div>`; e.classList.remove('hidden'); }
-function showOut(tab){ document.getElementById(tab+'-out').classList.remove('hidden'); }
+/* ── RESULTS STORE ── */
+const R={c:null,p:null,s:null,l:null};
 
-/* ════════════════════════════════════════════════════
-   CAROUSEL GENERATE
-════════════════════════════════════════════════════ */
-async function genCarousel() {
-  const brief=document.getElementById('c-brief').value.trim();
+/* ══════════════ CAROUSEL ══════════════ */
+async function genCarousel(){
+  const brief=document.getElementById('c-b').value.trim();
   if(!brief){toast('⚠️','Preencha o briefing');return;}
-  const link=document.getElementById('c-link').value.trim();
+  const link=document.getElementById('c-l').value.trim();
   const file=document.getElementById('c-fc').value.trim();
   const n=document.getElementById('c-n').value;
-  startL('carousel');
-  try {
-    const sys=`Você é um estrategista de conteúdo especializado em neurociência do comportamento e saúde digital. Crie carrosséis para Instagram que educam, provocam reflexão e geram salvamentos. Perfil do criador: palestrante que fala para escolas, empresas e profissionais de saúde no Brasil. Escreva sempre em PT-BR. Retorne APENAS JSON válido, sem markdown, sem explicações.`;
+  showLoad('c');
+  try{
+    const sys=`Você é um estrategista de conteúdo especializado em neurociência do comportamento e saúde digital. Crie carrosséis para Instagram que educam, provocam reflexão e geram salvamentos. Perfil do criador: palestrante que fala para escolas, empresas e profissionais de saúde no Brasil. Escreva sempre em PT-BR. Retorne APENAS JSON válido, sem markdown, sem explicações extras.`;
     const usr=`Crie um carrossel de ${n} slides sobre: "${brief}"
-Tom: ${gTone()} | Público: ${gAud()}
-${link?'Referência: '+link:''}${file?'\nConteúdo:\n'+file.slice(0,1500):''}
+Tom de voz: ${TONE()} | Público: ${AUD()}
+${link?'Referência: '+link:''}${file?'\nTexto de referência:\n'+file.slice(0,1500):''}
 
-JSON exato (sem comentários):
+Retorne APENAS este JSON (sem texto antes ou depois):
 {
-  "titulo": "Título geral",
+  "titulo": "Título geral do carrossel",
   "slides": [
     {
       "numero": "01/${n}",
-      "headline": "Headline impactante máx 8 palavras",
-      "corpo": "2 a 3 linhas de texto do slide",
-      "cor_fundo": "#hexcode",
-      "emocao": "emoção que este slide deve provocar",
-      "elemento_visual": "elemento visual sugerido",
+      "headline": "Headline impactante máximo 8 palavras",
+      "corpo": "Texto do slide 2 a 3 linhas explicando o ponto",
+      "cor_fundo": "#1A1209",
+      "emocao": "curiosidade",
+      "elemento_visual": "ícone de cérebro com engrenagens",
       "cta": null
     }
   ]
 }
-Último slide: "cta" com chamada para ação clara. Demais: "cta": null. APENAS JSON.`;
-    const data=await callAPI(sys,usr);
-    CR.carousel=data;
-    renderCarousel(data,parseInt(n));
-    showOut('carousel');
-  } catch(e){showErr('carousel',e.message);}
-  finally{stopL('carousel');}
+REGRA: último slide TEM o campo cta preenchido. Os demais têm "cta": null.
+Retorne APENAS o JSON. Nenhum texto adicional.`;
+    const data=await api(sys,usr);
+    R.c=data;renderCarousel(data,parseInt(n));showResult('c');
+  }catch(err){showErr('c',err.message);}
+  finally{hideLoad('c');}
 }
 
-/* ── EDITORIAL SLIDE BUILDER ── */
-const CREAM='#F5EFE4', DARK='#2C1F14', CHAR='#1A1209', ORANGE='#C4622D', TAN='#C9A87C', MUTED='#9C8370';
+/* ── SLIDE BUILDER ── */
+const CR='#F5EFE4',DK='#2C1F14',CH='#1A1209',OR='#C4622D',TN='#C9A87C';
 
-function buildSlide(s, idx, total) {
-  const isFirst = idx === 0;
-  const isLast  = idx === total - 1;
-  const rawBg   = (s.cor_fundo && /^#[0-9a-f]{6}$/i.test(s.cor_fundo)) ? s.cor_fundo : (isFirst || idx%2===0 ? CHAR : CREAM);
-  const light   = isLight(rawBg);
-  const textMain= light ? DARK  : CREAM;
-  const textSub = light ? MUTED : 'rgba(245,239,228,0.62)';
-  const textDim = light ? 'rgba(124,92,62,0.5)' : 'rgba(201,168,124,0.35)';
-  const divClr  = light ? TAN   : 'rgba(201,168,124,0.45)';
-  const brdClr  = light ? 'rgba(124,92,62,0.18)' : 'rgba(201,168,124,0.1)';
-  const tagClr  = light ? ORANGE : TAN;
-  const numLabel= s.numero || `${String(idx+1).padStart(2,'0')}/${total}`;
+function buildSlide(s,idx,total){
+  const isCover=idx===0,isCTA=idx===total-1;
+  const bg=validHex(s.cor_fundo)?s.cor_fundo:(idx%2===0?CH:CR);
+  const lt=isLt(bg);
+  const tM=lt?DK:CR, tS=lt?'#9C8370':'rgba(245,239,228,.6)', tD=lt?'rgba(124,92,62,.4)':'rgba(201,168,124,.3)';
+  const tagC=lt?OR:TN, bC=lt?'rgba(124,92,62,.15)':'rgba(201,168,124,.1)';
+  const num=s.numero||`${String(idx+1).padStart(2,'0')}/${total}`;
 
-  const w = '100%';
+  if(isCover)return`
+<div style="background:${bg};width:100%;aspect-ratio:1;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:44px;font-family:'Inter',sans-serif;">
+  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${OR},${TN});"></div>
+  <p style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:${TN};font-weight:600;margin-bottom:18px;">Saúde Digital</p>
+  <h2 style="font-family:'Playfair Display',serif;font-size:clamp(24px,4.5vw,36px);font-weight:900;line-height:1.1;color:${CR};margin-bottom:16px;">${e(s.headline)}</h2>
+  <div style="width:28px;height:2px;background:${TN};margin:0 auto 16px;"></div>
+  <p style="font-size:13px;line-height:1.7;color:rgba(245,239,228,.58);max-width:280px;">${e(s.corpo)}</p>
+  <p style="position:absolute;bottom:18px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(156,131,112,.28);">deslize →</p>
+</div>`;
 
-  if (isFirst) {
-    return `
-      <div style="background:${rawBg};width:${w};aspect-ratio:1;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:44px;font-family:'Inter',sans-serif;">
-        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ORANGE},${TAN});"></div>
-        <p style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:${TAN};font-weight:500;margin-bottom:20px;">Saúde Digital</p>
-        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(26px,5vw,38px);font-weight:900;line-height:1.1;color:${CREAM};margin-bottom:18px;">${esc(s.headline)}</h2>
-        <div style="width:32px;height:2px;background:${TAN};margin:0 auto 18px;"></div>
-        <p style="font-size:13px;line-height:1.7;color:rgba(245,239,228,0.6);max-width:300px;">${esc(s.corpo)}</p>
-        <p style="position:absolute;bottom:20px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(156,131,112,0.3);">deslize para o lado →</p>
-      </div>`;
+  if(isCTA)return`
+<div style="background:${bg};width:100%;aspect-ratio:1;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:44px;font-family:'Inter',sans-serif;">
+  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${OR},${TN});"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${TN},${OR});"></div>
+  <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${OR};font-weight:700;margin-bottom:14px;">${e(num)}</p>
+  <h2 style="font-family:'Playfair Display',serif;font-size:clamp(19px,3.5vw,28px);font-weight:900;line-height:1.2;color:${tM};margin-bottom:14px;">${e(s.headline)}</h2>
+  <div style="width:28px;height:2px;background:${TN};margin:0 auto 14px;"></div>
+  <p style="font-size:13px;line-height:1.7;color:${tS};max-width:310px;margin-bottom:22px;">${e(s.corpo)}</p>
+  ${s.cta?`<div style="display:inline-flex;align-items:center;gap:9px;background:${lt?DK:CR};color:${lt?CR:DK};padding:12px 22px;border-radius:4px;font-size:13px;font-weight:700;">🔖 ${e(s.cta)}</div>`:''}
+</div>`;
+
+  return`
+<div style="background:${bg};width:100%;aspect-ratio:1;overflow:hidden;display:flex;flex-direction:column;padding:34px 38px 28px;justify-content:space-between;font-family:'Inter',sans-serif;">
+  <div>
+    <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${tagC};font-weight:700;margin-bottom:12px;">${e(num)}</p>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(19px,3.2vw,26px);font-weight:900;line-height:1.2;color:${tM};margin-bottom:16px;">${e(s.headline)}</h2>
+    <div style="border-left:3px solid ${OR};padding-left:14px;">
+      <p style="font-size:13px;line-height:1.7;color:${tS};">${e(s.corpo)}</p>
+    </div>
+  </div>
+  <p style="font-size:11px;color:${tD};padding-top:12px;border-top:1px solid ${bC};">${e(s.emocao||'')}${s.elemento_visual?' · '+e(s.elemento_visual):''}</p>
+</div>`;
+}
+
+/* ── CAROUSEL VIEWER ── */
+let _cs=[],_ci=0;
+
+function renderCarousel(data,n){
+  document.getElementById('c-title').textContent=data.titulo||'';
+  _cs=data.slides||[];_ci=0;
+  const vw=document.getElementById('c-viewer');vw.innerHTML='';
+
+  const wrap=document.createElement('div');
+  wrap.innerHTML=`
+<div>
+  <div class="cvp" id="cvp"><div class="cvt" id="cvt">
+    ${_cs.map((s,i)=>`<div id="cvs-${i}" style="width:100%;flex-shrink:0;">${buildSlide(s,i,_cs.length)}</div>`).join('')}
+  </div></div>
+  <div class="cvnav">
+    <button class="cvarr" id="cvprev" onclick="cvGo(-1)">‹</button>
+    <div class="cvdots" id="cvdots"></div>
+    <button class="cvarr" id="cvnext" onclick="cvGo(1)">›</button>
+    <span class="cvcnt" id="cvcnt">1 / ${_cs.length}</span>
+  </div>
+  <div class="cvdlbar" id="cvdlbar"></div>
+  <button class="cvdlall" id="cvdlall" onclick="dlAll()">⬇ Baixar todos os slides (PNG)</button>
+</div>`;
+  vw.appendChild(wrap);
+
+  const dots=document.getElementById('cvdots');
+  _cs.forEach((_,i)=>{const d=document.createElement('button');d.className='cvdot'+(i===0?' on':'');d.onclick=()=>cvTo(i);dots.appendChild(d);});
+
+  const dlbar=document.getElementById('cvdlbar');
+  _cs.forEach((_,i)=>{const b=document.createElement('button');b.className='cvdlbtn';b.textContent=`↓ Slide ${i+1}`;b.onclick=()=>dlSlide(i);dlbar.appendChild(b);});
+
+  cvTo(0);
+}
+
+function cvTo(n){
+  _ci=Math.max(0,Math.min(_cs.length-1,n));
+  const tr=document.getElementById('cvt'),vp=document.getElementById('cvp');
+  if(tr&&vp)tr.style.transform=`translateX(-${_ci*vp.offsetWidth}px)`;
+  document.querySelectorAll('.cvdot').forEach((d,i)=>d.classList.toggle('on',i===_ci));
+  const cnt=document.getElementById('cvcnt');if(cnt)cnt.textContent=`${_ci+1} / ${_cs.length}`;
+  const pv=document.getElementById('cvprev'),nx=document.getElementById('cvnext');
+  if(pv)pv.disabled=_ci===0;if(nx)nx.disabled=_ci===_cs.length-1;
+}
+function cvGo(d){cvTo(_ci+d);}
+
+async function dlSlide(idx){
+  const el=document.getElementById(`cvs-${idx}`);if(!el||!el.firstElementChild)return;
+  const tr=document.getElementById('cvt');
+  if(tr){tr.style.transition='none';cvTo(idx);}
+  await new Promise(r=>setTimeout(r,180));
+  try{
+    const canvas=await html2canvas(el.firstElementChild,{scale:2.5,useCORS:true,allowTaint:true,backgroundColor:null,logging:false,imageTimeout:0});
+    const a=document.createElement('a');a.download=`slide-${String(idx+1).padStart(2,'0')}.png`;a.href=canvas.toDataURL('image/png');a.click();
+    toast('✅',`Slide ${idx+1} baixado!`);
+  }catch(err){toast('❌','Erro ao exportar: '+err.message);}
+  if(tr)tr.style.transition='';
+}
+
+async function dlAll(){
+  const btn=document.getElementById('cvdlall');if(!btn)return;
+  btn.disabled=true;
+  for(let i=0;i<_cs.length;i++){
+    btn.textContent=`Exportando ${i+1}/${_cs.length}…`;
+    await dlSlide(i);
+    await new Promise(r=>setTimeout(r,600));
   }
-  if (isLast) {
-    return `
-      <div style="background:${rawBg};width:${w};aspect-ratio:1;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:44px;font-family:'Inter',sans-serif;">
-        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ORANGE},${TAN});"></div>
-        <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${TAN},${ORANGE});"></div>
-        <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${ORANGE};font-weight:600;margin-bottom:16px;">${esc(numLabel)}</p>
-        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(22px,4vw,30px);font-weight:900;line-height:1.2;color:${textMain};margin-bottom:14px;">${esc(s.headline)}</h2>
-        <div style="width:32px;height:2px;background:${TAN};margin:0 auto 16px;"></div>
-        <p style="font-size:13px;line-height:1.7;color:${textSub};max-width:340px;margin-bottom:24px;">${esc(s.corpo)}</p>
-        ${s.cta?`<div style="display:inline-flex;align-items:center;gap:10px;background:${light?DARK:CREAM};color:${light?CREAM:DARK};padding:13px 22px;border-radius:4px;font-size:13px;font-weight:600;">🔖 &nbsp;${esc(s.cta)}</div>`:''}
-      </div>`;
-  }
-  // content slide
-  return `
-    <div style="background:${rawBg};width:${w};aspect-ratio:1;overflow:hidden;display:flex;flex-direction:column;padding:36px 40px 32px;justify-content:space-between;font-family:'Inter',sans-serif;">
-      <div>
-        <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${tagClr};font-weight:600;margin-bottom:14px;">${esc(numLabel)}</p>
-        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(20px,3.5vw,28px);font-weight:900;line-height:1.2;color:${textMain};margin-bottom:18px;">${esc(s.headline)}</h2>
-        <div style="border-left:3px solid ${ORANGE};padding-left:16px;">
-          <p style="font-size:13px;line-height:1.7;color:${textSub};">${esc(s.corpo)}</p>
+  btn.disabled=false;btn.textContent='⬇ Baixar todos os slides (PNG)';
+}
+
+/* ══════════════ POST ══════════════ */
+async function genPost(){
+  const brief=document.getElementById('p-b').value.trim();
+  if(!brief){toast('⚠️','Preencha o briefing');return;}
+  const link=document.getElementById('p-l').value.trim();
+  const file=document.getElementById('p-fc').value.trim();
+  const fmt=document.getElementById('p-fmt').value;
+  showLoad('p');
+  try{
+    const sys=`Você é um copywriter de conteúdo visual para Instagram. Crie textos de alto impacto para posts estáticos sobre adição digital e neurociência. Seja direto, provocador e memorável. Retorne APENAS JSON válido, sem markdown.`;
+    const usr=`Post estático no formato "${fmt}" sobre: "${brief}"
+Tom: ${TONE()} | Público: ${AUD()}
+${link?'Ref: '+link:''}${file?'\n'+file.slice(0,1500):''}
+JSON (APENAS JSON, nada mais):
+{"texto_principal":"máx 15 palavras","subtexto":"1 linha","cor_fundo":"#hex","cor_texto":"#hex","cor_destaque":"#hex","nome_cor_fundo":"nome","nome_cor_texto":"nome","nome_cor_destaque":"nome","layout":"instrução de layout para designer","emoji_tema":"1 emoji"}`;
+    const data=await api(sys,usr);
+    R.p=data;renderPost(data);showResult('p');
+  }catch(err){showErr('p',err.message);}
+  finally{hideLoad('p');}
+}
+
+function renderPost(d){
+  const bg=validHex(d.cor_fundo)?d.cor_fundo:CH;
+  const tc=validHex(d.cor_texto)?d.cor_texto:CR;
+  const ac=validHex(d.cor_destaque)?d.cor_destaque:OR;
+  const pw=document.getElementById('p-pw');pw.innerHTML='';
+  const f=document.createElement('div');f.id='p-preview';
+  f.style.cssText=`width:100%;aspect-ratio:1;background:${bg};overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px;border-radius:12px;font-family:'Inter',sans-serif;box-shadow:0 20px 60px rgba(0,0,0,.7);`;
+  f.innerHTML=`
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ac},${ac}70);"></div>
+    <p style="font-size:38px;margin-bottom:16px;">${d.emoji_tema||'💡'}</p>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,32px);font-weight:900;line-height:1.15;color:${tc};letter-spacing:-.5px;max-width:80%;margin-bottom:12px;">${e(d.texto_principal||'')}</h2>
+    <div style="width:28px;height:2px;background:${ac};margin:0 auto 12px;"></div>
+    <p style="font-size:13px;color:${tc};opacity:.55;max-width:65%;">${e(d.subtexto||'')}</p>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ac}70,${ac});"></div>`;
+  pw.appendChild(f);
+
+  const det=document.getElementById('p-det');
+  det.innerHTML=`
+    <p class="micro" style="margin-bottom:12px;">Paleta &amp; Layout</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+      ${[[bg,d.nome_cor_fundo,'Fundo'],[tc,d.nome_cor_texto,'Texto'],[ac,d.nome_cor_destaque,'Destaque']].map(([h,n,u])=>`
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:28px;height:28px;border-radius:7px;background:${e(h)};border:1px solid rgba(255,255,255,.1);flex-shrink:0;"></div>
+          <div><p style="font-size:12px;font-weight:700;">${e(h)}</p><p style="font-size:11px;color:var(--mut);">${e(n||u)}</p></div>
+        </div>`).join('')}
+    </div>
+    <div class="hr"></div>
+    <p class="micro" style="margin-bottom:6px;">Instrução de Layout</p>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;">${e(d.layout||'')}</p>`;
+}
+
+/* ══════════════ STORY ══════════════ */
+async function genStory(){
+  const brief=document.getElementById('s-b').value.trim();
+  if(!brief){toast('⚠️','Preencha o briefing');return;}
+  const type=document.getElementById('s-t').value;
+  showLoad('s');
+  try{
+    const sys=`Você é um criador de stories virais para Instagram sobre adição digital e neurociência. Tom: direto, humano, às vezes incômodo. Retorne APENAS JSON válido.`;
+    const usr=`Story tipo "${type}" sobre: "${brief}" | Tom: ${TONE()} | Público: ${AUD()}
+JSON (APENAS JSON):
+{"texto_principal":"máx 3 linhas impactantes","texto_secundario":"1 linha ou null","cor_fundo_inicio":"#hex","cor_fundo_fim":"#hex","enquete":${type==='enquete'?'{"pergunta":"texto","opcao_a":"Opção A","opcao_b":"Opção B"}':'null'},"musica_mood":"sugestão de música e mood","instrucao_visual":"o que mostrar no fundo","cta_story":"texto curto ou null"}`;
+    const data=await api(sys,usr);
+    R.s=data;renderStory(data);showResult('s');
+  }catch(err){showErr('s',err.message);}
+  finally{hideLoad('s');}
+}
+
+function renderStory(d){
+  const b1=validHex(d.cor_fundo_inicio)?d.cor_fundo_inicio:'#1a0533';
+  const b2=validHex(d.cor_fundo_fim)?d.cor_fundo_fim:'#0a0a1a';
+  const pw=document.getElementById('s-pw');pw.innerHTML='';
+  const f=document.createElement('div');f.id='s-preview';
+  f.style.cssText=`width:215px;aspect-ratio:9/16;background:linear-gradient(180deg,${b1},${b2});overflow:hidden;position:relative;display:flex;flex-direction:column;border-radius:18px;font-family:'Inter',sans-serif;flex-shrink:0;box-shadow:0 20px 50px rgba(0,0,0,.75);`;
+  f.innerHTML=`
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${OR},${TN});"></div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:18px 16px;">
+      <div style="display:flex;justify-content:center;"><div style="display:flex;gap:3px;"><div style="height:3px;width:72px;background:rgba(255,255,255,.5);border-radius:2px;"></div><div style="height:3px;width:72px;background:rgba(255,255,255,.15);border-radius:2px;"></div></div></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:10px;padding:12px 0;">
+        <p style="font-family:'Playfair Display',serif;font-size:17px;font-weight:900;color:${CR};line-height:1.3;">${e(d.texto_principal||'')}</p>
+        ${d.texto_secundario?`<p style="font-size:11px;color:rgba(245,239,228,.5);">${e(d.texto_secundario)}</p>`:''}
+        ${d.enquete?`<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:8px;width:100%;margin-top:6px;"><p style="font-size:11px;font-weight:700;color:${CR};margin-bottom:6px;">${e(d.enquete.pergunta||'')}</p><div style="display:flex;gap:4px;"><div style="flex:1;background:rgba(196,98,45,.75);border-radius:5px;padding:4px;font-size:10px;color:white;font-weight:700;text-align:center;">${e(d.enquete.opcao_a||'')}</div><div style="flex:1;background:rgba(255,255,255,.15);border-radius:5px;padding:4px;font-size:10px;color:white;font-weight:700;text-align:center;">${e(d.enquete.opcao_b||'')}</div></div></div>`:''}
+      </div>
+      ${d.cta_story?`<p style="font-size:10px;font-weight:700;color:rgba(201,168,124,.7);text-align:center;letter-spacing:1.5px;text-transform:uppercase;">${e(d.cta_story)}</p>`:'<div></div>'}
+    </div>`;
+  pw.appendChild(f);
+
+  document.getElementById('s-det').innerHTML=`
+    <div class="g" style="padding:16px;display:flex;flex-direction:column;gap:14px;">
+      <div><p class="micro" style="margin-bottom:6px;">Gradiente</p>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:20px;height:20px;border-radius:4px;background:${e(b1)};border:1px solid rgba(255,255,255,.1);"></div>
+          <div style="width:20px;height:20px;border-radius:4px;background:${e(b2)};border:1px solid rgba(255,255,255,.1);"></div>
+          <span style="font-size:12px;color:var(--mut);">${e(b1)} → ${e(b2)}</span>
         </div>
       </div>
-      <p style="font-size:11px;color:${textDim};padding-top:14px;border-top:1px solid ${brdClr};">${esc(s.emocao||'')}${s.elemento_visual?' · '+esc(s.elemento_visual):''}</p>
+      <div><p class="micro" style="margin-bottom:5px;">🎵 Música / Mood</p><p style="font-size:13px;color:var(--ink);">${e(d.musica_mood||'')}</p></div>
+      <div class="hr"></div>
+      <div><p class="micro" style="margin-bottom:5px;">🎬 Instrução Visual</p><p style="font-size:13px;color:var(--ink);line-height:1.55;">${e(d.instrucao_visual||'')}</p></div>
     </div>`;
 }
 
-/* ── CAROUSEL VIEWER RENDER ── */
-let _cvSlides=[], _cvCur=0;
-
-function renderCarousel(data, n) {
-  document.getElementById('c-title').textContent = data.titulo || '';
-  _cvSlides = data.slides || [];
-  _cvCur = 0;
-
-  const vw = document.getElementById('c-viewer');
-  vw.innerHTML = '';
-
-  // Build slide HTML strings
-  const slideHTMLs = _cvSlides.map((s,i) => buildSlide(s,i,_cvSlides.length));
-
-  // Viewer wrapper
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = `
-    <div class="cv-wrap">
-      <div class="cv-viewport" id="cv-vp">
-        <div class="cv-track" id="cv-track">
-          ${slideHTMLs.map((h,i)=>`<div id="cvs-${i}" style="width:100%;flex-shrink:0;overflow:hidden;">${h}</div>`).join('')}
-        </div>
-      </div>
-      <div class="cv-nav">
-        <button class="cv-arrow" id="cv-prev" onclick="cvGo(-1)">‹</button>
-        <div class="cv-dots" id="cv-dots"></div>
-        <button class="cv-arrow" id="cv-next" onclick="cvGo(1)">›</button>
-        <span class="cv-counter" id="cv-cnt">1 / ${_cvSlides.length}</span>
-      </div>
-      <div class="cv-dlbar" id="cv-dlbar"></div>
-      <div class="cv-dlbar">
-        <button class="cv-dlall" id="cv-dlall" onclick="dlAllSlides()">⬇ Baixar todos os slides (PNG)</button>
-      </div>
-    </div>
-  `;
-  vw.appendChild(wrapper);
-
-  // Build dots
-  const dotsEl = document.getElementById('cv-dots');
-  _cvSlides.forEach((_,i) => {
-    const d = document.createElement('button');
-    d.className = 'cv-dot' + (i===0?' active':'');
-    d.onclick = () => cvGoTo(i);
-    dotsEl.appendChild(d);
-  });
-
-  // Build dl buttons
-  const dlBar = document.getElementById('cv-dlbar');
-  _cvSlides.forEach((_,i) => {
-    const b = document.createElement('button');
-    b.className = 'cv-dlbtn';
-    b.textContent = `↓ Slide ${i+1}`;
-    b.onclick = () => dlSlide(i);
-    dlBar.appendChild(b);
-  });
-
-  cvGoTo(0);
-}
-
-function cvGoTo(n) {
-  _cvCur = Math.max(0, Math.min(_cvSlides.length-1, n));
-  const track = document.getElementById('cv-track');
-  const vp    = document.getElementById('cv-vp');
-  if (track && vp) track.style.transform = `translateX(-${_cvCur * vp.offsetWidth}px)`;
-  document.querySelectorAll('.cv-dot').forEach((d,i) => d.classList.toggle('active', i===_cvCur));
-  const cnt  = document.getElementById('cv-cnt');  if(cnt) cnt.textContent = `${_cvCur+1} / ${_cvSlides.length}`;
-  const prev = document.getElementById('cv-prev'); if(prev) prev.disabled = _cvCur===0;
-  const next = document.getElementById('cv-next'); if(next) next.disabled = _cvCur===_cvSlides.length-1;
-}
-function cvGo(d) { cvGoTo(_cvCur+d); }
-
-async function dlSlide(idx) {
-  const el = document.getElementById(`cvs-${idx}`);
-  if (!el) return;
-  const orig = document.getElementById('cv-track').style.transform;
-  document.getElementById('cv-track').style.transition = 'none';
-  cvGoTo(idx);
-  await new Promise(r=>setTimeout(r,150));
-  try {
-    const canvas = await html2canvas(el.firstElementChild, { scale:2.5, useCORS:true, allowTaint:true, backgroundColor:null, logging:false });
-    const a=document.createElement('a');
-    a.download=`slide-${String(idx+1).padStart(2,'0')}.png`;
-    a.href=canvas.toDataURL('image/png'); a.click();
-    toast('✅',`Slide ${idx+1} baixado!`);
-  } catch(e){ toast('❌','Erro: '+e.message); }
-  document.getElementById('cv-track').style.transition='';
-}
-
-async function dlAllSlides() {
-  const btn = document.getElementById('cv-dlall');
-  if (!btn) return;
-  btn.disabled=true;
-  for(let i=0;i<_cvSlides.length;i++){
-    btn.textContent=`Exportando ${i+1}/${_cvSlides.length}…`;
-    await dlSlide(i);
-    await new Promise(r=>setTimeout(r,500));
-  }
-  btn.disabled=false;
-  btn.textContent='⬇ Baixar todos os slides (PNG)';
-}
-
-/* ════════════════════════════════════════════════════
-   POST GENERATE
-════════════════════════════════════════════════════ */
-async function genPost() {
-  const brief=document.getElementById('p-brief').value.trim();
+/* ══════════════ CAPTION ══════════════ */
+async function genCaption(){
+  const brief=document.getElementById('l-b').value.trim();
   if(!brief){toast('⚠️','Preencha o briefing');return;}
-  const link=document.getElementById('p-link').value.trim();
-  const file=document.getElementById('p-fc').value.trim();
-  const fmt=document.getElementById('p-fmt').value;
-  startL('post');
-  try {
-    const sys=`Você é um copywriter de conteúdo visual para Instagram. Crie textos de alto impacto para posts estáticos sobre adição digital e neurociência. Seja direto, provocador e memorável. Retorne APENAS JSON válido, sem markdown, sem explicações.`;
-    const usr=`Crie um post estático no formato "${fmt}" sobre: "${brief}"
-Tom: ${gTone()} | Público: ${gAud()}
-${link?'Referência: '+link:''}${file?'\nConteúdo:\n'+file.slice(0,1500):''}
-
-JSON exato:
-{
-  "texto_principal": "Hero text máx 15 palavras",
-  "subtexto": "Uma linha complementar",
-  "cor_fundo": "#hexcode fundo dominante",
-  "cor_texto": "#hexcode texto principal",
-  "cor_destaque": "#hexcode acento/destaque",
-  "nome_cor_fundo": "nome",
-  "nome_cor_texto": "nome",
-  "nome_cor_destaque": "nome",
-  "layout": "Descrição do layout para o designer",
-  "emoji_tema": "1 emoji representativo"
-}
-APENAS JSON.`;
-    const data=await callAPI(sys,usr);
-    CR.post=data;
-    renderPost(data);
-    showOut('post');
-  } catch(e){showErr('post',e.message);}
-  finally{stopL('post');}
+  const goal=document.getElementById('l-g').value;
+  const len=document.getElementById('l-n').value;
+  showLoad('l');
+  try{
+    const sys=`Você é um copywriter especializado em legendas de Instagram para criadores de conteúdo educativo no Brasil. Escreva legendas que param o scroll, criam conexão e geram ação. Retorne APENAS JSON válido.`;
+    const usr=`Legenda sobre: "${brief.slice(0,2000)}"
+Objetivo: ${goal} | Comprimento: ${len} | Tom: ${TONE()} | Público: ${AUD()}
+JSON (APENAS JSON):
+{"legenda":"texto completo com \\n para quebras de linha, emojis, hook forte na 1ª linha","ctas":["CTA direto e específico","CTA emocional","CTA pergunta provocadora"],"hashtags":["#h1","#h2","#h3","#h4","#h5","#h6","#h7","#h8","#h9","#h10"],"hook_score":"nota 1-10 com justificativa em 1 frase","dica":"1 dica estratégica de alcance"}`;
+    const data=await api(sys,usr);
+    R.l=data;renderCaption(data);showResult('l');
+  }catch(err){showErr('l',err.message);}
+  finally{hideLoad('l');}
 }
 
-function renderPost(d) {
-  const bg     = /^#[0-9a-f]{6}$/i.test(d.cor_fundo||'')  ? d.cor_fundo  : CHAR;
-  const textC  = /^#[0-9a-f]{6}$/i.test(d.cor_texto||'')  ? d.cor_texto  : CREAM;
-  const accent = /^#[0-9a-f]{6}$/i.test(d.cor_destaque||'')? d.cor_destaque: ORANGE;
-  const light  = isLight(bg);
-  const emoji  = d.emoji_tema || '💡';
+function renderCaption(d){
+  const c=document.getElementById('l-cards');c.innerHTML='';
 
-  const wrap = document.getElementById('p-preview-wrap');
-  wrap.innerHTML = '';
-
-  const frame = document.createElement('div');
-  frame.id = 'p-preview';
-  frame.style.cssText = `width:100%;aspect-ratio:1;background:${bg};overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px;border-radius:12px;font-family:'Inter',sans-serif;`;
-  frame.innerHTML = `
-    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${accent},${accent}99);"></div>
-    <p style="font-size:38px;margin-bottom:18px;line-height:1;">${emoji}</p>
-    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(22px,4vw,34px);font-weight:900;line-height:1.15;color:${textC};letter-spacing:-0.5px;max-width:80%;margin-bottom:14px;">${esc(d.texto_principal||'')}</h2>
-    <div style="width:36px;height:2px;background:${accent};margin:0 auto 14px;"></div>
-    <p style="font-size:13px;color:${textC};opacity:0.6;max-width:70%;">${esc(d.subtexto||'')}</p>
-    <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${accent}99,${accent});"></div>
-  `;
-  wrap.appendChild(frame);
-
-  const det = document.getElementById('p-details');
-  const palette=[[bg,d.nome_cor_fundo,'Fundo'],[textC,d.nome_cor_texto,'Texto'],[accent,d.nome_cor_destaque,'Destaque']];
-  det.innerHTML = `
-    <p class="stag mb-3">Paleta &amp; Layout</p>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
-      ${palette.map(([h,n,u])=>`
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:30px;height:30px;border-radius:7px;background:${esc(h)};border:1px solid #2a2a2a;flex-shrink:0;"></div>
-          <div><p style="font-size:12px;font-weight:600;color:#e5e5e5;">${esc(h)}</p><p style="font-size:11px;color:#6b7280;">${esc(n||u)}</p></div>
-        </div>
-      `).join('')}
-    </div>
-    <p class="stag mb-2">Instrução de Layout</p>
-    <p style="font-size:13px;color:#9ca3af;line-height:1.6;">${esc(d.layout||'')}</p>
-  `;
-}
-
-/* ════════════════════════════════════════════════════
-   STORY GENERATE
-════════════════════════════════════════════════════ */
-async function genStory() {
-  const brief=document.getElementById('s-brief').value.trim();
-  if(!brief){toast('⚠️','Preencha o briefing');return;}
-  const type=document.getElementById('s-type').value;
-  startL('story');
-  try {
-    const sys=`Você é um criador de stories virais para Instagram. Conteúdo sobre adição digital, uso de telas e neurociência do comportamento. Tom: direto, humano, às vezes incômodo. Retorne APENAS JSON válido, sem markdown, sem explicações.`;
-    const usr=`Crie um story do tipo "${type}" sobre: "${brief}"
-Tom: ${gTone()} | Público: ${gAud()}
-
-JSON exato:
-{
-  "texto_principal": "Texto curto e impactante (máx 3 linhas)",
-  "texto_secundario": "Texto de apoio 1 linha ou null",
-  "cor_fundo_inicio": "#hexcode",
-  "cor_fundo_fim": "#hexcode",
-  "enquete": ${type==='enquete'?'{"pergunta":"texto","opcao_a":"A","opcao_b":"B"}':'null'},
-  "musica_mood": "Sugestão de música e mood",
-  "instrucao_visual": "O que mostrar no fundo",
-  "cta_story": "CTA curto ou null"
-}
-APENAS JSON.`;
-    const data=await callAPI(sys,usr);
-    CR.story=data;
-    renderStory(data);
-    showOut('story');
-  } catch(e){showErr('story',e.message);}
-  finally{stopL('story');}
-}
-
-function renderStory(d) {
-  const bg1 = /^#[0-9a-f]{6}$/i.test(d.cor_fundo_inicio||'') ? d.cor_fundo_inicio : '#1a0533';
-  const bg2 = /^#[0-9a-f]{6}$/i.test(d.cor_fundo_fim||'')    ? d.cor_fundo_fim    : '#0a0a1a';
-
-  const wrap = document.getElementById('s-preview-wrap');
-  wrap.innerHTML = '';
-
-  const frame = document.createElement('div');
-  frame.id = 's-preview';
-  frame.style.cssText = `width:200px;aspect-ratio:9/16;background:linear-gradient(180deg,${bg1} 0%,${bg2} 100%);overflow:hidden;position:relative;display:flex;flex-direction:column;border-radius:16px;font-family:'Inter',sans-serif;flex-shrink:0;box-shadow:0 20px 50px rgba(0,0,0,.7);`;
-  frame.innerHTML = `
-    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ORANGE},${TAN});"></div>
-    <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px;">
-      <div style="display:flex;justify-content:center;">
-        <div style="display:flex;gap:3px;">
-          <div style="height:3px;width:65px;background:rgba(255,255,255,.5);border-radius:2px;"></div>
-          <div style="height:3px;width:65px;background:rgba(255,255,255,.18);border-radius:2px;"></div>
-        </div>
-      </div>
-      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:10px;padding:12px 0;">
-        <p style="font-family:'Playfair Display',serif;font-size:16px;font-weight:900;color:${CREAM};line-height:1.3;">${esc(d.texto_principal||'')}</p>
-        ${d.texto_secundario?`<p style="font-size:11px;color:rgba(245,239,228,0.55);">${esc(d.texto_secundario)}</p>`:''}
-        ${d.enquete?`
-          <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:8px;width:100%;margin-top:6px;">
-            <p style="font-size:11px;font-weight:700;color:${CREAM};margin-bottom:6px;">${esc(d.enquete.pergunta||'')}</p>
-            <div style="display:flex;gap:4px;">
-              <div style="flex:1;background:rgba(196,98,45,.75);border-radius:5px;padding:4px;font-size:10px;color:white;font-weight:600;text-align:center;">${esc(d.enquete.opcao_a||'')}</div>
-              <div style="flex:1;background:rgba(255,255,255,.18);border-radius:5px;padding:4px;font-size:10px;color:white;font-weight:600;text-align:center;">${esc(d.enquete.opcao_b||'')}</div>
-            </div>
-          </div>
-        `:''}
-      </div>
-      ${d.cta_story?`<p style="font-size:10px;font-weight:700;color:rgba(201,168,124,.7);text-align:center;letter-spacing:1.5px;text-transform:uppercase;">${esc(d.cta_story)}</p>`:'<div></div>'}
-    </div>
-  `;
-  wrap.appendChild(frame);
-
-  const det = document.getElementById('s-details');
-  det.innerHTML = `
-    <div class="card p-4 space-y-3">
-      <p class="stag mb-3">Detalhes do Story</p>
-      <div>
-        <p style="font-size:11px;color:#6b7280;margin-bottom:4px;">Gradiente</p>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:22px;height:22px;border-radius:5px;background:${esc(bg1)};border:1px solid #2a2a2a;"></div>
-          <div style="width:22px;height:22px;border-radius:5px;background:${esc(bg2)};border:1px solid #2a2a2a;"></div>
-          <span style="font-size:12px;color:#9ca3af;">${esc(bg1)} → ${esc(bg2)}</span>
-        </div>
-      </div>
-      <div>
-        <p style="font-size:11px;color:#6b7280;margin-bottom:3px;">🎵 Música / Mood</p>
-        <p style="font-size:13px;color:#e5e5e5;">${esc(d.musica_mood||'')}</p>
-      </div>
-      <div>
-        <p style="font-size:11px;color:#6b7280;margin-bottom:3px;">🎬 Instrução visual</p>
-        <p style="font-size:13px;color:#e5e5e5;line-height:1.5;">${esc(d.instrucao_visual||'')}</p>
-      </div>
-    </div>
-  `;
-}
-
-/* ════════════════════════════════════════════════════
-   CAPTION GENERATE
-════════════════════════════════════════════════════ */
-async function genCaption() {
-  const brief=document.getElementById('leg-brief').value.trim();
-  if(!brief){toast('⚠️','Preencha o briefing');return;}
-  const goal=document.getElementById('leg-goal').value;
-  const len=document.getElementById('leg-len').value;
-  startL('caption');
-  try {
-    const sys=`Você é um copywriter especializado em legendas de Instagram para criadores de conteúdo educativo no Brasil. Escreva legendas que param o scroll, criam conexão e geram ação. Retorne APENAS JSON válido, sem markdown, sem explicações.`;
-    const usr=`Crie uma legenda com base em:\n"${brief.slice(0,2000)}"
-Objetivo: ${goal} | Comprimento: ${len}
-Tom: ${gTone()} | Público: ${gAud()}
-
-JSON exato:
-{
-  "legenda": "Legenda completa (use \\n para quebras, emojis estratégicos, hook forte na 1ª linha)",
-  "ctas": ["CTA direto","CTA emocional","CTA pergunta"],
-  "hashtags": ["#hashtag1","#hashtag2","#hashtag3","#hashtag4","#hashtag5","#hashtag6","#hashtag7","#hashtag8","#hashtag9","#hashtag10"],
-  "hook_score": "nota de 1-10 com justificativa em 1 frase",
-  "dica": "1 dica estratégica para maximizar o alcance"
-}
-APENAS JSON.`;
-    const data=await callAPI(sys,usr);
-    CR.caption=data;
-    renderCaption(data);
-    showOut('caption');
-  } catch(e){showErr('caption',e.message);}
-  finally{stopL('caption');}
-}
-
-function renderCaption(d) {
-  const cards=document.getElementById('leg-cards'); cards.innerHTML='';
-
-  if (d.legenda) {
-    const formatted = esc(d.legenda).replace(/\\n/g,'\n').replace(/\n/g,'<br>');
-    const c=document.createElement('div'); c.className='card p-5';
-    c.innerHTML=`
+  if(d.legenda){
+    const fmt=e(d.legenda).replace(/\\n/g,'\n').replace(/\n/g,'<br>');
+    const card=document.createElement('div');card.className='g';card.style.padding='20px';
+    card.innerHTML=`
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <span class="stag">Legenda</span>
-        ${d.hook_score?`<span style="font-size:11px;background:#0a1f0a;color:#4ade80;border:1px solid #14532d;border-radius:20px;padding:2px 10px;">Hook ${esc(d.hook_score.split(' ')[0]||'')}</span>`:''}
+        <span class="micro">Legenda</span>
+        ${d.hook_score?`<span style="font-size:11px;background:rgba(74,222,128,.08);color:var(--ok);border:1px solid rgba(74,222,128,.2);border-radius:999px;padding:2px 10px;font-family:'Inter',sans-serif;">Hook ${e(d.hook_score.split(' ')[0]||'')}</span>`:''}
       </div>
-      <div style="background:#0d0d0d;border:1px solid #1e1e1e;border-radius:10px;padding:16px;font-size:14px;color:#d1d5db;line-height:1.75;white-space:pre-wrap;font-family:'Inter',sans-serif;" id="leg-txt">${formatted}</div>
-      ${d.hook_score?`<p style="font-size:12px;color:#6b7280;margin-top:8px;">💡 ${esc(d.hook_score)}</p>`:''}
-    `; cards.appendChild(c);
+      <div class="cap-txt">${fmt}</div>
+      ${d.hook_score?`<p style="font-size:12px;color:var(--mut);margin-top:8px;">💡 ${e(d.hook_score)}</p>`:''}`;
+    c.appendChild(card);
   }
 
-  if (d.ctas?.length) {
-    const c=document.createElement('div'); c.className='card p-5';
-    c.innerHTML=`
-      <p class="stag mb-3">3 Opções de CTA</p>
-      ${d.ctas.map((ct,i)=>`
-        <div style="background:#0d0d0d;border:1px solid #1e1e1e;border-radius:8px;padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:10px;font-weight:700;background:#1e1b4b;color:#a78bfa;border-radius:4px;padding:2px 7px;">${i+1}</span>
-            <span style="font-size:13px;color:#e5e5e5;">${esc(ct)}</span>
-          </div>
-          <button onclick="cpText(this,${JSON.stringify(ct)})" class="btn-g" style="flex-shrink:0;padding:3px 8px;font-size:11px;">📋</button>
+  if(d.ctas?.length){
+    const card=document.createElement('div');card.className='g';card.style.padding='20px';
+    card.innerHTML=`<p class="micro" style="margin-bottom:12px;">3 Opções de CTA</p>
+    ${d.ctas.map((ct,i)=>`
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:10px;font-weight:800;background:rgba(212,98,42,.12);color:var(--acc2);border:1px solid rgba(212,98,42,.2);border-radius:4px;padding:2px 7px;font-family:'Inter',sans-serif;">${i+1}</span>
+          <span style="font-size:13px;">${e(ct)}</span>
         </div>
-      `).join('')}
-    `; cards.appendChild(c);
+        <button onclick="cpTxt(this,${JSON.stringify(ct)})" class="btn btn-sm" style="padding:3px 8px;font-size:11px;flex-shrink:0;">📋</button>
+      </div>`).join('')}`;
+    c.appendChild(card);
   }
 
-  if (d.hashtags?.length) {
+  if(d.hashtags?.length){
     const hs=d.hashtags.join(' ');
-    const c=document.createElement('div'); c.className='card p-5';
-    c.innerHTML=`
+    const card=document.createElement('div');card.className='g';card.style.padding='20px';
+    card.innerHTML=`
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <span class="stag">Hashtags (${d.hashtags.length})</span>
-        <button onclick="cpText(this,${JSON.stringify(hs)})" class="btn-g" style="padding:4px 10px;">📋 Copiar</button>
+        <span class="micro">Hashtags (${d.hashtags.length})</span>
+        <button onclick="cpTxt(this,${JSON.stringify(hs)})" class="btn btn-sm" style="padding:4px 10px;">📋</button>
       </div>
-      <div>${d.hashtags.map(h=>`<span class="hashtag-pill">${esc(h)}</span>`).join('')}</div>
-    `; cards.appendChild(c);
+      <div>${d.hashtags.map(h=>`<span class="htag">${e(h)}</span>`).join('')}</div>`;
+    c.appendChild(card);
   }
 
-  if (d.dica) {
-    const c=document.createElement('div');
-    c.style.cssText='background:#0f0a00;border:1px solid #78350f;border-radius:14px;padding:14px 16px;';
-    c.innerHTML=`<p style="font-size:10px;color:#92400e;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:6px;">💡 Dica estratégica</p><p style="font-size:13px;color:#fef3c7;line-height:1.6;">${esc(d.dica)}</p>`;
-    cards.appendChild(c);
+  if(d.dica){
+    const card=document.createElement('div');card.className='tipbox';
+    card.innerHTML=`<p class="micro" style="color:var(--acc2);margin-bottom:6px;">💡 Dica estratégica</p><p style="font-size:13px;color:rgba(242,237,232,.75);line-height:1.6;">${e(d.dica)}</p>`;
+    c.appendChild(card);
   }
 }
 
-function copyCaption() {
-  const d=CR.caption; if(!d?.legenda){toast('⚠️','Nenhuma legenda gerada');return;}
+function cpCaption(){
+  const d=R.l;if(!d?.legenda){toast('⚠️','Nenhuma legenda gerada');return;}
   navigator.clipboard.writeText(d.legenda.replace(/\\n/g,'\n')).then(()=>toast('📋','Legenda copiada!'));
 }
 
-/* ── DOWNLOAD ── */
-async function dlEl(elId, fname) {
-  const el=document.getElementById(elId);
-  if (!el){toast('⚠️','Elemento não encontrado');return;}
-  try {
-    const canvas=await html2canvas(el,{scale:2.5,useCORS:true,allowTaint:true,backgroundColor:null,logging:false});
-    const a=document.createElement('a');
-    a.download=`${fname}-${Date.now()}.png`; a.href=canvas.toDataURL('image/png'); a.click();
+/* ══════════════ DOWNLOAD ══════════════ */
+async function dlEl(elId,fname){
+  const el=document.getElementById(elId);if(!el){toast('⚠️','Elemento não encontrado');return;}
+  toast('⏳','Exportando PNG…');
+  try{
+    const canvas=await html2canvas(el,{scale:2.5,useCORS:true,allowTaint:true,backgroundColor:null,logging:false,imageTimeout:0});
+    const a=document.createElement('a');a.download=`${fname}-${Date.now()}.png`;a.href=canvas.toDataURL('image/png');a.click();
     toast('✅',`${fname}.png baixado!`);
-  } catch(e){toast('❌','Erro ao gerar imagem');}
+  }catch(err){toast('❌','Erro ao exportar: '+err.message);}
 }
 
-/* ── COPY ── */
-function cpText(btn,text) {
-  navigator.clipboard.writeText(text).then(()=>{const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,1400);toast('📋','Copiado!');});
+/* ══════════════ COPY ══════════════ */
+function cpTxt(btn,txt){
+  navigator.clipboard.writeText(txt).then(()=>{const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,1400);toast('📋','Copiado!');});
 }
 
-/* ── DISCARD ── */
-function discardResult(outId, tab) {
-  document.getElementById(outId).classList.add('hidden');
-  CR[tab]=null; toast('🗑️','Resultado descartado');
-}
+/* ══════════════ DISCARD ══════════════ */
+function discard(k){showEmpty(k);R[k]=null;toast('🗑️','Descartado');}
 
-/* ── SEND TO CAPTION ── */
-function sendToCaption(src) {
-  const d=CR[src]; if(!d){toast('⚠️','Nenhum resultado gerado');return;}
+/* ══════════════ SEND TO CAPTION ══════════════ */
+function toCaption(src){
+  const d=R[src];if(!d){toast('⚠️','Nenhum resultado gerado ainda');return;}
   let txt='';
-  if(src==='carousel') txt=(d.titulo?d.titulo+'\n\n':'')+(d.slides||[]).map(s=>`${s.numero||''} ${s.headline||''}\n${s.corpo||''}${s.cta?'\n→ '+s.cta:''}`).join('\n\n');
-  else if(src==='post') txt=`${d.texto_principal||''}\n${d.subtexto||''}\n\nLayout: ${d.layout||''}`;
-  else if(src==='story') txt=`${d.texto_principal||''}\n${d.texto_secundario||''}\n\nVisual: ${d.instrucao_visual||''}\nMúsica: ${d.musica_mood||''}`;
-  document.getElementById('leg-brief').value=txt.slice(0,2000);
-  document.querySelectorAll('.tab-btn').forEach(b=>{if(b.getAttribute('onclick')?.includes("'caption'")) switchTab('caption',b);});
-  toast('✍️','Conteúdo enviado para Legenda!');
+  if(src==='c')txt=(d.titulo?d.titulo+'\n\n':'')+(d.slides||[]).map(s=>`${s.numero||''} ${s.headline||''}\n${s.corpo||''}${s.cta?'\n→ '+s.cta:''}`).join('\n\n');
+  else if(src==='p')txt=`${d.texto_principal||''}\n${d.subtexto||''}\n\nLayout: ${d.layout||''}`;
+  else if(src==='s')txt=`${d.texto_principal||''}\n${d.texto_secundario||''}\n\nVisual: ${d.instrucao_visual||''}`;
+  document.getElementById('l-b').value=txt.slice(0,2000);
+  document.querySelectorAll('.tab').forEach(b=>{if(b.getAttribute('onclick')?.includes("'l'"))switchTab('l',b);});
+  toast('✍','Conteúdo enviado para Legenda!');
 }
 
-/* ════════════════════════════════════════════════════
-   APPROVED / DRAWER
-════════════════════════════════════════════════════ */
-function approveResult(tab) {
-  const d=CR[tab]; if(!d){toast('⚠️','Nenhum resultado para aprovar');return;}
-  const list=JSON.parse(localStorage.getItem('approved')||'[]');
-  const brief=document.getElementById(BRIEF_IDS[tab])?.value?.slice(0,80)||'';
-  list.unshift({id:Date.now(),tab,data:JSON.parse(JSON.stringify(d)),brief,at:new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})});
-  if(list.length>50) list.splice(50);
-  localStorage.setItem('approved',JSON.stringify(list));
-  renderBadge(); toast('✅','Aprovado e salvo!');
+/* ══════════════ APPROVED ══════════════ */
+function approve(k){
+  const d=R[k];if(!d){toast('⚠️','Nenhum resultado para aprovar');return;}
+  const brief=document.getElementById(BRIEF[k])?.value?.slice(0,80)||'';
+  const list=JSON.parse(localStorage.getItem('cs_approved')||'[]');
+  list.unshift({id:Date.now(),k,data:JSON.parse(JSON.stringify(d)),brief,at:new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})});
+  if(list.length>50)list.splice(50);
+  localStorage.setItem('cs_approved',JSON.stringify(list));
+  renderBadge();toast('✅','Aprovado e salvo!');
 }
 
-function getApproved(){return JSON.parse(localStorage.getItem('approved')||'[]');}
+function getApproved(){return JSON.parse(localStorage.getItem('cs_approved')||'[]');}
 
-function renderBadge() {
-  const list=getApproved(); const badge=document.getElementById('abadge'); const cnt=document.getElementById('acnt');
-  if(list.length){badge.classList.add('show');cnt.textContent=list.length;cnt.style.display='flex';}
-  else{badge.classList.remove('show');cnt.style.display='none';}
+function renderBadge(){
+  const list=getApproved(),badge=document.getElementById('abadge'),cnt=document.getElementById('acnt');
+  if(list.length){badge.classList.add('on');cnt.textContent=list.length;cnt.style.display='flex';}
+  else{badge.classList.remove('on');cnt.style.display='none';}
 }
 
-function openDrawer(){renderDrawerList();document.getElementById('drawer').classList.add('open');document.getElementById('doverlay').classList.add('open');}
-function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('doverlay').classList.remove('open');}
+function openDrawer(){renderDrawer();document.getElementById('drawer').classList.add('on');document.getElementById('dov').classList.add('on');}
+function closeDrawer(){document.getElementById('drawer').classList.remove('on');document.getElementById('dov').classList.remove('on');}
 
-const TLABELS={carousel:'🎠 Carrossel',post:'🖼️ Post',story:'📱 Story',caption:'✍️ Legenda'};
-const TBADGE ={carousel:'background:#1e1b4b;color:#a78bfa;',post:'background:#0f2a1a;color:#4ade80;',story:'background:#1a1020;color:#e879f9;',caption:'background:#1a120a;color:#fb923c;'};
+const TLBL={c:'Carrossel',p:'Post',s:'Story',l:'Legenda'};
+const TBGC={
+  c:'background:rgba(212,98,42,.1);color:var(--acc2);border-color:rgba(212,98,42,.2);',
+  p:'background:rgba(74,222,128,.07);color:#4ade80;border-color:rgba(74,222,128,.18);',
+  s:'background:rgba(232,131,90,.08);color:#fbbf24;border-color:rgba(251,191,36,.18);',
+  l:'background:rgba(96,165,250,.07);color:#60a5fa;border-color:rgba(96,165,250,.18);'
+};
 
-function renderDrawerList() {
+function renderDrawer(){
   const list=getApproved();
-  document.getElementById('drawer-empty').style.display=list.length?'none':'block';
-  document.getElementById('clr-btn').classList.toggle('hidden',!list.length);
-  const c=document.getElementById('drawer-list'); c.innerHTML='';
+  document.getElementById('d-empty').style.display=list.length?'none':'';
+  document.getElementById('d-clr').style.display=list.length?'':'none';
+  const c=document.getElementById('d-list');c.innerHTML='';
   list.forEach((item,idx)=>{
     const d=item.data;
-    const title=item.tab==='carousel'?(d.titulo||'Carrossel'):item.tab==='post'?(d.texto_principal||'Post'):item.tab==='story'?(d.texto_principal||'Story'):(d.legenda?.slice(0,60)||'Legenda');
-    const el=document.createElement('div'); el.className='ditem';
+    const title=item.k==='c'?(d.titulo||'Carrossel'):item.k==='p'?(d.texto_principal||'Post'):item.k==='s'?(d.texto_principal||'Story'):(d.legenda?.slice(0,60)||'Legenda');
+    const el=document.createElement('div');el.className='ditem';
     el.innerHTML=`
-      <span style="font-size:10px;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:8px;${TBADGE[item.tab]||''}">${TLABELS[item.tab]||item.tab}</span>
-      <p style="font-size:13px;color:#e5e5e5;font-weight:500;line-height:1.4;margin-bottom:3px;">${esc(title)}</p>
-      <p style="font-size:11px;color:#4b5563;">📝 ${esc(item.brief)}…</p>
-      <p style="font-size:10px;color:#374151;margin-top:4px;">${esc(item.at)}</p>
+      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;display:inline-block;margin-bottom:8px;border:1px solid;${TBGC[item.k]||''}">${TLBL[item.k]||item.k}</span>
+      <p style="font-size:13px;font-weight:600;line-height:1.4;margin-bottom:3px;">${e(title)}</p>
+      <p style="font-size:11px;color:var(--mut);">📝 ${e(item.brief)}…</p>
+      <p style="font-size:10px;color:var(--dim);margin-top:3px;">${e(item.at)}</p>
       <div style="display:flex;gap:6px;margin-top:10px;">
-        <button onclick="cpApproved(${idx})" class="btn-g" style="flex:1;justify-content:center;font-size:11px;">📋 Copiar</button>
-        <button onclick="rmApproved(${idx})" class="btn-g btn-reject" style="padding:4px 10px;font-size:11px;">🗑️</button>
-      </div>
-    `;
+        <button onclick="cpApproved(${idx})" class="btn btn-sm" style="flex:1;justify-content:center;">📋 Copiar</button>
+        <button onclick="rmApproved(${idx})" class="btn btn-sm btn-err" style="padding:4px 10px;">✕</button>
+      </div>`;
     c.appendChild(el);
   });
 }
 
-function cpApproved(idx) {
-  const item=getApproved()[idx]; if(!item) return;
-  const d=item.data; let txt='';
-  if(item.tab==='carousel') txt=(d.titulo||'')+'\n\n'+(d.slides||[]).map(s=>`${s.numero||''} ${s.headline||''}\n${s.corpo||''}${s.cta?'\n→'+s.cta:''}`).join('\n\n');
-  else if(item.tab==='post') txt=`${d.texto_principal||''}\n${d.subtexto||''}\n\nLayout: ${d.layout||''}`;
-  else if(item.tab==='story') txt=`${d.texto_principal||''}\n${d.texto_secundario||''}\n\nVisual: ${d.instrucao_visual||''}\nMúsica: ${d.musica_mood||''}`;
+function cpApproved(idx){
+  const item=getApproved()[idx];if(!item)return;
+  const d=item.data;let txt='';
+  if(item.k==='c')txt=(d.titulo||'')+'\n\n'+(d.slides||[]).map(s=>`${s.numero||''} ${s.headline||''}\n${s.corpo||''}${s.cta?'\n→'+s.cta:''}`).join('\n\n');
+  else if(item.k==='p')txt=`${d.texto_principal||''}\n${d.subtexto||''}\n\nLayout: ${d.layout||''}`;
+  else if(item.k==='s')txt=`${d.texto_principal||''}\n${d.texto_secundario||''}\n\nVisual: ${d.instrucao_visual||''}\nMúsica: ${d.musica_mood||''}`;
   else txt=(d.legenda||'').replace(/\\n/g,'\n')+(d.ctas?.length?'\n\n'+d.ctas.join('\n'):'')+(d.hashtags?.length?'\n\n'+d.hashtags.join(' '):'');
   navigator.clipboard.writeText(txt).then(()=>toast('📋','Copiado!'));
 }
-
-function rmApproved(idx) {
-  const list=getApproved(); list.splice(idx,1);
-  localStorage.setItem('approved',JSON.stringify(list));
-  renderBadge(); renderDrawerList();
-}
-
-function clearApproved() {
-  if(!confirm('Limpar todos os aprovados?')) return;
-  localStorage.removeItem('approved'); renderBadge(); renderDrawerList();
-}
+function rmApproved(idx){const l=getApproved();l.splice(idx,1);localStorage.setItem('cs_approved',JSON.stringify(l));renderBadge();renderDrawer();}
+function clearApproved(){if(!confirm('Limpar todos os aprovados?'))return;localStorage.removeItem('cs_approved');renderBadge();renderDrawer();}
 </script>
 </body>
 </html>
