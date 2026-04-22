@@ -423,17 +423,29 @@
             <div class="chips" id="ch-s"></div>
           </div>
           <div><span class="label">Briefing *</span><textarea id="s-b" rows="3" placeholder="Ex: reflexão sobre o dopamine loop…" style="padding:10px 12px;"></textarea></div>
-          <div><span class="label">Tipo de story</span>
-            <select id="s-t" style="padding:9px 12px;">
-              <option value="enquete">Enquete</option>
-              <option value="reflexão impactante">Reflexão</option>
-              <option value="dado chocante">Dado chocante</option>
-              <option value="bastidor pessoal">Bastidor</option>
-              <option value="CTA direto">CTA direto</option>
-            </select>
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;"><span class="label">Tipo de story</span>
+              <select id="s-t" style="padding:9px 12px;">
+                <option value="enquete">Enquete</option>
+                <option value="reflexão impactante">Reflexão</option>
+                <option value="dado chocante">Dado chocante</option>
+                <option value="bastidor pessoal">Bastidor</option>
+                <option value="CTA direto">CTA direto</option>
+              </select>
+            </div>
+            <div style="flex:0 0 110px;"><span class="label">Sequência</span>
+              <select id="s-n" style="padding:9px 12px;">
+                <option value="1">1 story</option>
+                <option value="2">2 stories</option>
+                <option value="3">3 stories</option>
+                <option value="4">4 stories</option>
+                <option value="5">5 stories</option>
+                <option value="7">7 stories</option>
+              </select>
+            </div>
           </div>
           <button class="btn btn-acc" id="s-btn" onclick="genStory()" style="width:100%;padding:13px;font-size:14px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gerar Story
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gerar Stories
           </button>
         </div>
       </div>
@@ -445,9 +457,16 @@
           <div class="acts">
             <button class="btn btn-sm btn-ok"  onclick="approve('s')">✅ Aprovar</button>
             <button class="btn btn-sm btn-err" onclick="discard('s')">✕ Descartar</button>
-            <button class="btn btn-sm btn-blu" onclick="dlEl('s-preview','story')">⬇ PNG</button>
+            <button class="btn btn-sm btn-blu" onclick="dlStory()">⬇ PNG</button>
+            <button class="btn btn-sm btn-blu" id="s-dl-all-btn" onclick="dlAllStories()" style="display:none;">⬇ Todos</button>
             <button class="btn btn-sm"         onclick="genStory()">↺ Nova versão</button>
             <button class="btn btn-sm btn-ora" onclick="toCaption('s')">✍ Legenda</button>
+          </div>
+          <div id="s-nav" style="display:none;justify-content:center;align-items:center;gap:10px;padding:8px 0 4px;">
+            <button onclick="navStory(-1)" style="background:var(--s1);border:1px solid var(--bd);color:var(--ink);border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:16px;line-height:1;">‹</button>
+            <div id="s-dots" style="display:flex;gap:5px;align-items:center;"></div>
+            <button onclick="navStory(1)" style="background:var(--s1);border:1px solid var(--bd);color:var(--ink);border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:16px;line-height:1;">›</button>
+            <span id="s-counter" style="font-size:11px;color:var(--mut);min-width:36px;text-align:center;"></span>
           </div>
           <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
             <div id="s-pw"></div>
@@ -946,30 +965,88 @@ async function genStory(){
   const brief=document.getElementById('s-b').value.trim();
   if(!brief){toast('⚠️','Preencha o briefing');return;}
   const type=document.getElementById('s-t').value;
+  const n=parseInt(document.getElementById('s-n').value)||1;
   showLoad('s');
   try{
-    const sys=`Você cria stories virais na voz de Filipe Teixeira: palestrante de adição digital e neurociência. Tom: direto, humano, às vezes incômodo, sempre autoral. Escreva como se o Filipe tivesse digitado no celular, sem cara de IA. NUNCA use travessões (— ou –). NUNCA use expressões genéricas ou pomposas. Retorne APENAS JSON válido.`;
-    const usr=`Story tipo "${type}" sobre: "${brief}" | Tom: ${TONE()} | Público: ${AUD()}
+    const sys=`Você cria stories virais na voz de Filipe Teixeira: palestrante de adição digital e neurociência. Tom: direto, humano, às vezes incômodo, sempre autoral. Escreva como se o Filipe tivesse digitado no celular, sem cara de IA. NUNCA use travessões (— ou –). NUNCA use expressões genéricas ou pomposas. CTAs devem ser naturais: "salva", "me segue", "compartilha", "responde aqui" — NUNCA "arrasta pra ver mais", "desliza" ou qualquer variação de swipe. Retorne APENAS JSON válido.`;
+    let stories;
+    if(n===1){
+      const usr=`Story tipo "${type}" sobre: "${brief}" | Tom: ${TONE()} | Público: ${AUD()}
 JSON (APENAS JSON):
-{"texto_principal":"máx 3 linhas impactantes","texto_secundario":"1 linha ou null","variante":"escuro ou claro","enquete":${type==='enquete'?'{"pergunta":"texto","opcao_a":"Opção A","opcao_b":"Opção B"}':'null'},"musica_mood":"sugestão de música e mood","instrucao_visual":"o que mostrar no fundo","cta_story":"texto curto ou null"}`;
-    const data=await api(sys,usr);
-    R.s=data;renderStory(data);showResult('s');
+{"texto_principal":"máx 3 linhas impactantes","texto_secundario":"1 linha ou null","variante":"escuro ou claro","enquete":${type==='enquete'?'{"pergunta":"texto","opcao_a":"Opção A","opcao_b":"Opção B"}':'null'},"musica_mood":"sugestão de música e mood","instrucao_visual":"o que mostrar no fundo","cta_story":"texto curto real ou null"}`;
+      const data=await api(sys,usr);
+      stories=[data];
+    } else {
+      const usr=`Sequência de ${n} stories do tipo "${type}" sobre: "${brief}" | Tom: ${TONE()} | Público: ${AUD()}
+Crie uma narrativa coerente: cada story tem sentido sozinho, juntos formam uma progressão. Só o último pode ter CTA de engajamento ("salva", "me segue", "compartilha"). Os demais não precisam de CTA.
+Retorne APENAS array JSON com exatamente ${n} objetos:
+[{"texto_principal":"máx 3 linhas","texto_secundario":"1 linha ou null","variante":"escuro ou claro","musica_mood":"mood","instrucao_visual":"o que mostrar","cta_story":"texto ou null"}]`;
+      const data=await api(sys,usr);
+      stories=Array.isArray(data)?data:[data];
+    }
+    R.s=stories;R.si=0;
+    renderStorySeq();showResult('s');
   }catch(err){showErr('s',err.message);}
   finally{hideLoad('s');}
 }
 
-function renderStory(d){
-  // Paleta de marca: tons terrosos — nunca deixar a IA inventar cores
+function renderStorySeq(){
+  const stories=R.s||[];
+  const total=stories.length;
+  const idx=R.si||0;
+  const nav=document.getElementById('s-nav');
+  const dlAllBtn=document.getElementById('s-dl-all-btn');
+  if(total>1){
+    nav.style.display='flex';
+    dlAllBtn.style.display='';
+    document.getElementById('s-dots').innerHTML=Array.from({length:total},(_,i)=>
+      `<div onclick="navStoryTo(${i})" style="width:${i===idx?18:6}px;height:6px;border-radius:3px;background:${i===idx?'var(--acc)':'rgba(242,237,232,.22)'};cursor:pointer;transition:all .2s;"></div>`
+    ).join('');
+    document.getElementById('s-counter').textContent=`${idx+1} / ${total}`;
+  } else {
+    nav.style.display='none';
+    dlAllBtn.style.display='none';
+  }
+  renderStory(stories[idx]||{},idx,total);
+}
+
+function navStory(dir){
+  const total=(R.s||[]).length;
+  R.si=Math.max(0,Math.min(total-1,(R.si||0)+dir));
+  renderStorySeq();
+}
+function navStoryTo(i){R.si=i;renderStorySeq();}
+
+async function dlStory(){await dlEl('s-preview','story-'+(( R.si||0)+1));}
+
+async function dlAllStories(){
+  const stories=R.s||[];
+  for(let i=0;i<stories.length;i++){
+    R.si=i;renderStorySeq();
+    await new Promise(r=>setTimeout(r,400));
+    await dlEl('s-preview','story-'+(i+1));
+    await new Promise(r=>setTimeout(r,500));
+  }
+  toast('✅',`${stories.length} stories baixados`);
+}
+
+function renderStory(d,idx=0,total=1){
   const isLight=(d.variante||'').toLowerCase()==='claro';
   const b1=isLight?'#F0E5D8':'#1A0E08';
   const b2=isLight?'#E8D9C8':'#2C1A10';
   const textColor=isLight?DK:CR;
   const subColor=isLight?'rgba(44,26,16,.5)':'rgba(242,237,232,.5)';
   const ctaColor=isLight?'rgba(196,98,45,.7)':'rgba(201,168,124,.7)';
-  const barOpacity=isLight?'rgba(44,26,16,.2)':'rgba(255,255,255,.5)';
-  const barFaded=isLight?'rgba(44,26,16,.08)':'rgba(255,255,255,.15)';
+  const barActive=isLight?'rgba(44,26,16,.45)':'rgba(255,255,255,.75)';
+  const barFaded=isLight?'rgba(44,26,16,.1)':'rgba(255,255,255,.18)';
   const enqueteBtnB=isLight?'rgba(196,98,45,.85)':'rgba(196,98,45,.75)';
   const enqueteBtnA=isLight?'rgba(44,26,16,.12)':'rgba(255,255,255,.15)';
+
+  // Dynamic progress bars reflecting position in sequence
+  const barW=total>1?Math.floor(130/total):72;
+  const bars=Array.from({length:total},(_,i)=>
+    `<div style="height:3px;width:${barW}px;background:${i<=idx?barActive:barFaded};border-radius:2px;"></div>`
+  ).join('');
 
   const pw=document.getElementById('s-pw');pw.innerHTML='';
   const f=document.createElement('div');f.id='s-preview';
@@ -977,7 +1054,7 @@ function renderStory(d){
   f.innerHTML=`
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${OR},${TN});"></div>
     <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:18px 16px;">
-      <div style="display:flex;justify-content:center;"><div style="display:flex;gap:3px;"><div style="height:3px;width:72px;background:${barOpacity};border-radius:2px;"></div><div style="height:3px;width:72px;background:${barFaded};border-radius:2px;"></div></div></div>
+      <div style="display:flex;justify-content:center;"><div style="display:flex;gap:3px;">${bars}</div></div>
       <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:10px;padding:12px 0;">
         <p style="font-family:'Playfair Display',serif;font-size:17px;font-weight:900;color:${textColor};line-height:1.3;">${e(d.texto_principal||'')}</p>
         ${d.texto_secundario?`<p style="font-size:11px;color:${subColor};">${e(d.texto_secundario)}</p>`:''}
@@ -989,11 +1066,11 @@ function renderStory(d){
 
   document.getElementById('s-det').innerHTML=`
     <div class="g" style="padding:16px;display:flex;flex-direction:column;gap:14px;">
-      <div><p class="micro" style="margin-bottom:6px;">Variante</p>
+      <div><p class="micro" style="margin-bottom:6px;">${total>1?`Story ${idx+1} de ${total} · `:''}Variante</p>
         <div style="display:flex;align-items:center;gap:8px;">
           <div style="width:20px;height:20px;border-radius:4px;background:${b1};border:1px solid rgba(255,255,255,.1);"></div>
           <div style="width:20px;height:20px;border-radius:4px;background:${b2};border:1px solid rgba(255,255,255,.1);"></div>
-          <span style="font-size:12px;color:var(--mut);">${isLight?'Claro (creme)':'Escuro (espresso)'} · ${b1} → ${b2}</span>
+          <span style="font-size:12px;color:var(--mut);">${isLight?'Claro (creme)':'Escuro (espresso)'}</span>
         </div>
       </div>
       <div><p class="micro" style="margin-bottom:5px;">🎵 Música / Mood</p><p style="font-size:13px;color:var(--ink);">${e(d.musica_mood||'')}</p></div>
