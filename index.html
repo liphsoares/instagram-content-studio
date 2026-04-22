@@ -1021,13 +1021,38 @@ async function dlStory(){await dlEl('s-preview','story-'+(( R.si||0)+1));}
 
 async function dlAllStories(){
   const stories=R.s||[];
+  if(!stories.length)return;
+  const origIdx=R.si;
+  toast('⏳',`Preparando ${stories.length} stories…`);
+
+  // 1. Gerar todos os canvases antes de disparar qualquer download
+  const canvases=[];
   for(let i=0;i<stories.length;i++){
     R.si=i;renderStorySeq();
-    await new Promise(r=>setTimeout(r,400));
-    await dlEl('s-preview','story-'+(i+1));
-    await new Promise(r=>setTimeout(r,500));
+    await new Promise(r=>setTimeout(r,350));
+    const el=document.getElementById('s-preview');
+    if(!el)continue;
+    try{
+      const c=await html2canvas(el,{scale:2.5,useCORS:true,allowTaint:true,backgroundColor:null,logging:false,imageTimeout:0});
+      canvases.push({url:c.toDataURL('image/png'),name:`filipe-story-${i+1}`});
+    }catch(err){toast('❌','Erro story '+(i+1)+': '+err.message);}
   }
-  toast('✅',`${stories.length} stories baixados`);
+
+  // Restaurar view original
+  R.si=origIdx;renderStorySeq();
+
+  // 2. Disparar downloads sequencialmente com delay suficiente
+  for(let i=0;i<canvases.length;i++){
+    const {url,name}=canvases[i];
+    const a=document.createElement('a');
+    a.download=`${name}-${Date.now()}.png`;
+    a.href=url;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    await new Promise(r=>setTimeout(r,1000));
+  }
+  toast('✅',`${canvases.length} stories baixados`);
 }
 
 function renderStory(d,idx=0,total=1){
