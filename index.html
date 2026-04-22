@@ -745,7 +745,7 @@ async function genCarousel(){
   const n=document.getElementById('c-n').value;
   showLoad('c');
   try{
-    const sys=`Você é um estrategista de conteúdo especializado em neurociência do comportamento e saúde digital. Crie carrosséis para Instagram que educam, provocam reflexão e geram salvamentos. Perfil do criador: palestrante que fala para escolas, empresas e profissionais de saúde no Brasil. Escreva sempre em PT-BR. Retorne APENAS JSON válido, sem markdown, sem explicações extras.`;
+    const sys=`Você é um estrategista de conteúdo especializado em neurociência do comportamento e saúde digital. Crie carrosséis para Instagram que educam, provocam reflexão e geram salvamentos. Perfil do criador: Filipe Teixeira, palestrante que fala para escolas, empresas e profissionais de saúde no Brasil. Escreva sempre em PT-BR com voz humana e autoral — como se o próprio Filipe tivesse escrito. NUNCA use travessões (— ou –). NUNCA use construções típicas de IA como "mergulhe em", "vamos explorar", "no mundo de hoje". Prefira frases curtas, diretas e com personalidade. Retorne APENAS JSON válido, sem markdown, sem explicações extras.`;
     const usr=`Crie um carrossel de ${n} slides sobre: "${brief}"
 Tom de voz: ${TONE()} | Público: ${AUD()}
 ${link?'Referência: '+link:''}${file?'\nTexto de referência:\n'+file.slice(0,1500):''}
@@ -896,7 +896,7 @@ async function genPost(){
   const fmt=document.getElementById('p-fmt').value;
   showLoad('p');
   try{
-    const sys=`Você é um copywriter de conteúdo visual para Instagram. Crie textos de alto impacto para posts estáticos sobre adição digital e neurociência. Seja direto, provocador e memorável. Retorne APENAS JSON válido, sem markdown.`;
+    const sys=`Você é um copywriter de conteúdo visual para Instagram que escreve na voz de Filipe Teixeira: palestrante de adição digital e neurociência, direto, provocador e humano. Escreva como se fosse ele mesmo escrevendo, não uma IA. NUNCA use travessões (— ou –). NUNCA use frases genéricas de IA. Frases curtas, impacto real. Retorne APENAS JSON válido, sem markdown.`;
     const usr=`Post estático no formato "${fmt}" sobre: "${brief}"
 Tom: ${TONE()} | Público: ${AUD()}
 ${link?'Ref: '+link:''}${file?'\n'+file.slice(0,1500):''}
@@ -946,7 +946,7 @@ async function genStory(){
   const type=document.getElementById('s-t').value;
   showLoad('s');
   try{
-    const sys=`Você é um criador de stories virais para Instagram sobre adição digital e neurociência. Tom: direto, humano, às vezes incômodo. Retorne APENAS JSON válido.`;
+    const sys=`Você cria stories virais na voz de Filipe Teixeira: palestrante de adição digital e neurociência. Tom: direto, humano, às vezes incômodo, sempre autoral. Escreva como se o Filipe tivesse digitado no celular, sem cara de IA. NUNCA use travessões (— ou –). NUNCA use expressões genéricas ou pomposas. Retorne APENAS JSON válido.`;
     const usr=`Story tipo "${type}" sobre: "${brief}" | Tom: ${TONE()} | Público: ${AUD()}
 JSON (APENAS JSON):
 {"texto_principal":"máx 3 linhas impactantes","texto_secundario":"1 linha ou null","cor_fundo_inicio":"#hex","cor_fundo_fim":"#hex","enquete":${type==='enquete'?'{"pergunta":"texto","opcao_a":"Opção A","opcao_b":"Opção B"}':'null'},"musica_mood":"sugestão de música e mood","instrucao_visual":"o que mostrar no fundo","cta_story":"texto curto ou null"}`;
@@ -998,7 +998,7 @@ async function genCaption(){
   const len=document.getElementById('l-n').value;
   showLoad('l');
   try{
-    const sys=`Você é um copywriter especializado em legendas de Instagram para criadores de conteúdo educativo no Brasil. Escreva legendas que param o scroll, criam conexão e geram ação. Retorne APENAS JSON válido.`;
+    const sys=`Você escreve legendas de Instagram na voz de Filipe Teixeira: palestrante de adição digital e neurociência, direto, reflexivo e humano. O leitor deve sentir que foi o próprio Filipe que escreveu, nunca uma IA. NUNCA use travessões (— ou –). NUNCA use construções artificiais como "neste conteúdo", "hoje vamos falar sobre", "no mundo atual". Use frases curtas, quebras de linha estratégicas, perguntas reais e CTAs naturais. Retorne APENAS JSON válido.`;
     const usr=`Legenda sobre: "${brief.slice(0,2000)}"
 Objetivo: ${goal} | Comprimento: ${len} | Tom: ${TONE()} | Público: ${AUD()}
 JSON (APENAS JSON):
